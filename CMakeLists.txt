@@ -40,19 +40,13 @@ if(APP_BUILD_SHARED)
 endif()
 
 # ---- visual studio filters ----
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src
-    FILES ${APP_SOURCES}
-)
-
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/include
-    FILES ${APP_HEADERS}
-)
+source_group("Source Files" FILES ${APP_SOURCES})
+source_group("Header Files" FILES ${APP_HEADERS})
 
 # ---- include dirs ----
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
 )
 
 # ---- link deps ----
