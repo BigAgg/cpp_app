@@ -1,4 +1,5 @@
 #include "app/app.h"
+#include "app/eventmanager.h"
 #include <raylib.h>
 #include <filesystem>
 #include <fstream>
@@ -173,11 +174,10 @@ void app::BeginDrawing () {
   // Important: creates the docking node
   ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
   ImGui::DockSpace(dockspace_id, ImVec2(0, 0));
+  ImGui::End();
   // Drawing all windows
   auto &wc = WindowControl::Get();
   wc.DrawWindows ();
-
-  ImGui::End();
 }
 
 void app::EndDrawing () {
@@ -187,6 +187,8 @@ void app::EndDrawing () {
   app.drawing = false;
   rlImGuiEnd();
   ::EndDrawing();
+  auto &em = EventRegistry::Get();
+  em.TriggerEvents();
 }
 
 void app::SetIcon (const std::string& filepath) {
