@@ -34,15 +34,19 @@ add_library(${PROJECT_NAME}
     ${APP_HEADERS}
 )
 
-# ---- visual studio filters ----
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${APP_SOURCES})
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${APP_HEADERS})
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/include FILES ${APP_HEADERS})
-
 # static / shared toggle
 if(APP_BUILD_SHARED)
     set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
+
+# ---- visual studio filters ----
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src
+    FILES ${APP_SOURCES}
+)
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/include
+    FILES ${APP_HEADERS}
+)
 
 # ---- include dirs ----
 target_include_directories(${PROJECT_NAME}
