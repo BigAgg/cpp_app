@@ -17,11 +17,27 @@ file(GLOB_RECURSE APP_SOURCES CONFIGURE_DEPENDS
     src/*.cpp
 )
 
+# ---- headers ----
+file(GLOB_RECURSE APP_HEADERS CONFIGURE_DEPENDS
+    include/**/*.h
+    include/**/*.hpp
+    src/**/*.h
+    src/**/*.hpp
+)
+
 # ---- dependencies ----
 include(cmake/dependencies.cmake)
 
 # ---- library ----
-add_library(${PROJECT_NAME} ${APP_SOURCES})
+add_library(${PROJECT_NAME}
+    ${APP_SOURCES}
+    ${APP_HEADERS}
+)
+
+# ---- visual studio filters ----
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${APP_SOURCES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${APP_HEADERS})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/include FILES ${APP_HEADERS})
 
 # static / shared toggle
 if(APP_BUILD_SHARED)
