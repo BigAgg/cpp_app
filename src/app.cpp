@@ -153,19 +153,6 @@ void app::BeginDrawing () {
   ::ClearBackground(BLACK);
   rlDrawRenderBatchActive();
   rlImGuiBegin();
-  auto &wc = WindowControl::Get();
-  if (ImGui::BeginMainMenuBar ()) {
-    if (ImGui::BeginMenu ("Fenster")) {
-      if (ImGui::Button("Wähle Theme"))
-        wc.ToggleThemeSelect();
-      if (ImGui::Button("Fenster anpassen"))
-        wc.ToggleEditFlags();
-      if (ImGui::Button("Fenster Aktivieren"))
-        wc.ToggleWindowToggle();
-      ImGui::EndMenu();
-    }
-    ImGui::EndMainMenuBar();
-  }
   // Setting up doc host functionality
   ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
                                   ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
@@ -186,6 +173,9 @@ void app::BeginDrawing () {
   // Important: creates the docking node
   ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
   ImGui::DockSpace(dockspace_id, ImVec2(0, 0));
+  // Drawing all windows
+  auto &wc = WindowControl::Get();
+  wc.DrawWindows ();
 
   ImGui::End();
 }
