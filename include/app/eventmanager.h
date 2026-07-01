@@ -4,6 +4,8 @@
 #include <vector>
 #include <functional>
 
+using Event = std::function<void()>;
+
 class EventRegistry {
 public:
   static EventRegistry& Get () {
@@ -11,11 +13,11 @@ public:
     return instance;
   }
 
-  void RegisterEvent(std::function<void()> function);
+  void RegisterEvent(Event function);
   void TriggerEvents();
 
 private:
-  std::vector<std::function<void()>> mRegistry;
+  std::vector<Event> mRegistry;
 
 public:
   EventRegistry(const EventRegistry &) = delete;

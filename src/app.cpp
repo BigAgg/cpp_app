@@ -106,7 +106,6 @@ void app::Init (int width, int height, const std::string& name) {
   rlImGuiSetup(false);
   ImGuiIO &io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-  io.IniFilename = nullptr;
   auto &wc = WindowControl::Get();
   wc.LoadSettings();
 }
