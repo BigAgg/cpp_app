@@ -92,6 +92,8 @@ void WindowControl::DrawMainMenu() {
 
 void WindowControl::ToggleWindow() {
   for (auto& [name, wi] : mRegistry) {
+    if (!wi.function)
+      return;
     ImGui::Checkbox(name.c_str(), &wi.open);
   }
 }
@@ -148,6 +150,8 @@ void WindowControl::ThemeSelector() {
 void WindowControl::EditWindowFlags() {
   if (ImGui::BeginCombo("Fenster Auswahl", mSelectedWindow.c_str())) {
     for (const auto& [name, wi] : mRegistry) {
+      if (!wi.function || !wi.open)
+        continue;
       bool selected = name == mSelectedWindow;
       if (ImGui::Selectable(name.c_str(), selected))
         mSelectedWindow = name;
@@ -218,6 +222,8 @@ void WindowControl::SaveSettings() {
   file << "\n";
   // Saving each window settings
   for (const auto& [name, wi] : mRegistry) {
+    if (!wi.function)
+      continue;
     file << "[Window][" << name << "]\n";
     file << "Flags=" << std::to_string(wi.flags) << "\n";
     file << "Open=" << std::to_string(wi.open) << "\n";
@@ -265,7 +271,7 @@ void WindowControl::LoadSettings() {
           flags = std::stoi(value);
       }
       if (!windowname.empty())
-        RegisterWindow(windowname, open, []() {}, flags);
+        RegisterWindow(windowname, open, nullptr, flags);
     }
   }
   file.close();

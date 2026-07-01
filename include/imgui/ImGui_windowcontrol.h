@@ -7,9 +7,9 @@
 struct WindowInformation {
   bool open = false;
   int flags = 0;
-  std::function<void()> function;
+  std::function<void()> function = nullptr;
 
-  explicit operator bool() { return open; }
+  explicit operator bool() { return open && function; }
 };
 
 class WindowControl {
