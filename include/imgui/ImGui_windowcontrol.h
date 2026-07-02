@@ -10,6 +10,22 @@ struct WindowInformation {
   std::function<void()> function = nullptr;
 
   explicit operator bool() { return open && function; }
+
+  bool is_flag(int flag) const {
+    return (flags & flag) != 0;
+  }
+
+  void set_flag(int flag) {
+    flags |= flag;
+  }
+
+  void clear_flag(int flag) {
+    flags &= ~flag;
+  }
+
+  void toggle_flag(int flag) {
+    flags ^= flag;
+  }
 };
 
 class WindowControl {
