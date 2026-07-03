@@ -1,13 +1,21 @@
 #pragma once
-#include <functional>
 #include <map>
 #include <string>
 #include <unordered_map>
 
+using Function = void(*)();
+
+struct PopupInformation {
+  bool modal = true;
+  Function function = nullptr;
+
+  explicit operator bool() { return function; }
+};
+
 struct WindowInformation {
   bool open = false;
   int flags = 0;
-  std::function<void()> function = nullptr;
+  Function function = nullptr;
 
   explicit operator bool() { return open && function; }
 
@@ -36,9 +44,10 @@ public:
   }
 
   void RegisterWindow(const std::string& name, bool open,
-                      std::function<void()> function, int flags = 0);
+                      Function function, int flags = 0);
   void RegisterMenu(const std::string& name,
-                    std::function<void()> function);
+                    Function function);
+  void RegisterPopup(const std::string &name, bool modal, Function function);
   void ToggleWindow(const std::string& name);
   void SetWindowState(const std::string& name, bool open);
   WindowInformation& GetWindowInfo(const std::string& name);
@@ -57,7 +66,8 @@ public:
 
 private:
   std::unordered_map<std::string, WindowInformation> mRegistry;
-  std::map<std::string, std::function<void()>> mMenuBarRegistry;
+  std::unordered_map<std::string, PopupInformation> mPopupRegistry;
+  std::map<std::string, Function> mMenuBarRegistry;
   std::string mSelectedWindow;
   unsigned char mTheme = 0;
   bool mEditFlagsOpen = false;

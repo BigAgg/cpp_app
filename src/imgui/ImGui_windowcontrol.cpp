@@ -4,12 +4,11 @@
 #include <cassert>
 #include <fstream>
 #include <imgui.h>
-#include <functional>
 #include <string>
 #include <utility>
 
 void WindowControl::RegisterWindow(const std::string& name, bool open,
-                                   std::function<void()> function,
+                                   Function function,
                                    int flags) {
   auto it = mRegistry.find(name);
   if (it != mRegistry.end()) {
@@ -24,11 +23,19 @@ void WindowControl::RegisterWindow(const std::string& name, bool open,
 }
 
 void WindowControl::RegisterMenu(const std::string& name,
-                                 std::function<void()> function) {
+                                 Function function) {
   auto it = mMenuBarRegistry.find(name);
   assert(it == mMenuBarRegistry.end() &&
          "There is already a Menu registered with the same name!");
   mMenuBarRegistry[name] = function;
+}
+
+void WindowControl::RegisterPopup (const std::string& name, bool modal, Function function) {
+  assert(function && "nullptr Function for popup is not allowed");
+  assert(!name.empty() && "Empty name is not allowed");
+  auto it = mPopupRegistry.find(name);
+  assert(it == mPopupRegistry.end() && "There is already a Popup registered with the same name!");
+  mPopupRegistry[name] = PopupInformation(modal, function);
 }
 
 void WindowControl::ToggleWindow(const std::string& name) {
@@ -58,8 +65,24 @@ void WindowControl::DrawWindows() {
   for (auto& [name, wi] : mRegistry) {
     if (!wi)
       continue;
-    if (ImGui::Begin(name.c_str(), &wi.open, wi.flags))
+    if (ImGui::Begin (name.c_str (), &wi.open, wi.flags)) {
       wi.function();
+			for (auto& [name, pi] : mPopupRegistry) {
+				if (!pi)
+					continue;
+				if (pi.modal) {
+					if (ImGui::BeginPopupModal (name.c_str ())) {
+						pi.function();
+						ImGui::EndPopup();
+					}
+				} else {
+					if (ImGui::BeginPopup (name.c_str ())) {
+						pi.function();
+						ImGui::EndPopup();
+					}
+				}
+			}
+    }
     ImGui::End();
   }
 }
