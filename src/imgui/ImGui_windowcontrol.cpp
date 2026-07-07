@@ -92,6 +92,21 @@ void WindowControl::DrawMainMenu() {
   for (const auto& [name, function] : mMenuBarRegistry) {
     if (ImGui::BeginMenu(name.c_str())) {
       function();
+      for (auto& [name, pi] : mPopupRegistry) {
+        if (!pi)
+          continue;
+        if (pi.modal) {
+          if (ImGui::BeginPopupModal (name.c_str ())) {
+            pi.function();
+            ImGui::EndPopup();
+          }
+        } else {
+          if (ImGui::BeginPopup (name.c_str ())) {
+            pi.function();
+            ImGui::EndPopup();
+          }
+        }
+      }
       ImGui::EndMenu();
     }
   }
