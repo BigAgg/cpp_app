@@ -31,6 +31,6 @@ std::string get_date (const std::string& fmt) {
 }
 
 std::string get_user () {
-  return std::getenv("USERNAME");
+  return to_lower(std::getenv("USERNAME"));
 }
 
