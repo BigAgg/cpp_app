@@ -9,6 +9,7 @@
 #include <rlImGui.h>
 #include <rlgl.h>
 
+
 namespace fs = std::filesystem;
 
 /*
@@ -36,6 +37,46 @@ public:
     bool maximized = false;
   } settings;
 
+  struct {
+    bool hasDroppedFile = false;
+    std::vector<std::string> files;
+
+    std::string getFirstFile(std::string endswith = "") {
+      if (!hasDroppedFile || files.size() == 0) {
+        hasDroppedFile = false;
+        return "";
+      }
+      hasDroppedFile = false;
+      if (endswith == "") {
+        std::string file = files[0];
+        files.clear();
+        return file;
+      }
+      for (std::string file : files) {
+        if (file.ends_with(endswith)) {
+          files.clear();
+          return file;
+        }
+      }
+      files.clear();
+      return "";
+    }
+
+    std::vector<std::string> getFiles(std::string endswith = "") {
+      std::vector<std::string> outfiles;
+      if (!hasDroppedFile)
+        return outfiles;
+      hasDroppedFile = false;
+      for (std::string file : files) {
+        if (file.ends_with(endswith)) {
+          outfiles.push_back(file);
+        }
+      }
+      files.clear();
+      return outfiles;
+    }
+  } dragDrop;
+
   bool initialized = false;
   bool close = true;
   std::string name = "App";
@@ -54,6 +95,29 @@ private:
   App() = default;
   ~App() = default;
 };
+
+static void HandleDropfiles () {
+  auto &app = App::Get();
+  if (IsFileDropped ()) {
+		if (!IsWindowFocused())
+			SetWindowFocused();
+		app.dragDrop.files.clear();
+		FilePathList dropped = LoadDroppedFiles();
+		app.dragDrop.hasDroppedFile = true;
+		if (dropped.count > 0) {
+			for (unsigned int i = 0; i < dropped.count; i++) {
+				app.dragDrop.files.push_back(dropped.paths[i]);
+			}
+		}
+		UnloadDroppedFiles(dropped);
+  }
+}
+
+static void ClearDropfiles () {
+  auto &app = App::Get();
+  app.dragDrop.files.clear();
+  app.dragDrop.hasDroppedFile = false;
+}
 
 // Initializing window and generating basic structure
 void app::Init (int width, int height, const std::string& name) {
@@ -145,6 +209,7 @@ void app::Close () {
 }
 
 void app::BeginDrawing () {
+  HandleDropfiles();
   auto &app = App::Get();
   if (!app.initialized || app.drawing)
     return;
@@ -188,6 +253,7 @@ void app::EndDrawing () {
   ::EndDrawing();
   auto &em = EventRegistry::Get();
   em.TriggerEvents();
+  ClearDropfiles();
 }
 
 void app::SetIcon (const std::string& filepath) {
@@ -221,4 +287,14 @@ void app::DrawStartup (const std::string& filepath) {
   ::EndDrawing();
   app.drawing = false;
   UnloadTexture(t);
+}
+
+bool app::HasDropfiles () {
+  auto &app = App::Get();
+  return app.dragDrop.hasDroppedFile;
+}
+
+std::vector<std::string> app::GetDropfiles (const std::string& endswith) {
+  auto &app = App::Get();
+  return app.dragDrop.getFiles(endswith);
 }
