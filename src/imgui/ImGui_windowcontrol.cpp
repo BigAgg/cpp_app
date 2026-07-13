@@ -119,7 +119,7 @@ void WindowControl::DrawMainMenu() {
       ToggleWindow();
       ImGui::EndMenu();
     }
-    if (ImGui::BeginMenu("Select Theem")) {
+    if (ImGui::BeginMenu("Select Theme")) {
       ThemeSelector();
       ImGui::EndMenu();
     }

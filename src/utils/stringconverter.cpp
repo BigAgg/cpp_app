@@ -18,6 +18,25 @@ std::pair<std::string, std::string> split_at(const std::string &input, const std
   };
 }
 
+void replace_all(std::string& str, std::string_view from, std::string_view to) {
+  if (from.empty())
+    return;
+
+  std::size_t pos = 0;
+  while ((pos = str.find (from, pos)) != std::string::npos) {
+    str.replace(pos, from.length(), to);
+    pos += to.length();
+  }
+}
+
+bool replace_first(std::string &str, std::string_view from, std::string_view to) {
+  auto pos = str.find(from);
+  if (pos == std::string::npos)
+    return false;
+  str.replace(pos, from.length(), to);
+  return true;
+}
+
 std::string to_lower (const std::string& s) {
   std::string out = s;
   std::transform(out.begin(), out.end(), out.begin(), [](unsigned char c) { return std::tolower(c); });
@@ -33,6 +52,33 @@ std::string get_date (const std::string& fmt) {
 
 std::string get_user () {
   return to_lower(std::getenv("USERNAME"));
+}
+
+std::string get_timestamp () {
+	const auto now = std::chrono::system_clock::now();
+	std::time_t time = std::chrono::system_clock::to_time_t(now);
+	std::tm tm{};
+
+#ifdef _WIN32
+	localtime_s(&tm, &time);
+#else
+	localtime_r(&time, &tm);
+#endif
+
+	std::stringstream ss;
+	ss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
+	return ss.str();
+}
+
+std::string to_german_time (const std::string& time) {
+  std::tm tm = {};
+  std::istringstream ss(time);
+  ss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S");
+
+  std::ostringstream out;
+  out << std::put_time(&tm, "%d-%m-%Y %H:%M:%S");
+
+  return out.str();
 }
 
 static bool s_CanDecodeAsCodepage (const std::vector<unsigned char>& bytes, UINT codePage) {
@@ -103,5 +149,26 @@ std::string from_utf8 (const std::string& utf8) {
       &ansi[0], alen, nullptr, nullptr);
 
   return ansi;
+}
+
+bool is_integer (const std::string& str) {
+  if (str.empty())
+    return false;
+
+  size_t pos = 0;
+
+  // Optional sign
+  if (str[0] == '+' || str[0] == '-') {
+    if (str.size() == 1)
+      return false;
+    pos = 1;
+  }
+
+  for (; pos < str.size(); ++pos) {
+    if (!std::isdigit(static_cast<unsigned char>(str[pos])))
+      return false;
+  }
+
+  return true;
 }
 

@@ -4,6 +4,8 @@
 #include <vector>
 #include <utility>
 #include <Windows.h>
+#include <chrono>
+#include <filesystem>
 
 std::string OpenFileDialog(const std::vector<std::string>& filters, std::string delimiter) {
   NFD_Init();
@@ -110,4 +112,25 @@ std::string OpenDirectoryDialog() {
 
 void OpenPath(const std::string& path) {
   ShellExecute(NULL, "open", path.c_str(), NULL, NULL, SW_SHOWDEFAULT);
+}
+
+long long GetLastWriteTimeInt (const std::string& path) {
+  using namespace std::chrono;
+  auto ftime = std::filesystem::last_write_time(path);
+  auto sctp = time_point_cast<system_clock::duration>(
+      ftime - decltype(ftime)::clock::now() + system_clock::now());
+  std::time_t cftime = system_clock::to_time_t(sctp);
+  return cftime;
+}
+
+std::string GetLastWriteTime (const std::string& path) {
+  using namespace std::chrono;
+  auto ftime = std::filesystem::last_write_time(path);
+  auto sctp = time_point_cast<system_clock::duration>(
+      ftime - decltype(ftime)::clock::now() + system_clock::now());
+
+  std::time_t cftime = system_clock::to_time_t(sctp);
+  std::stringstream ss;
+  ss << std::put_time(std::localtime(&cftime), "%F %T");
+  return ss.str();
 }

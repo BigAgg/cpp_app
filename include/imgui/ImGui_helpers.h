@@ -39,7 +39,7 @@ inline void HelpMarkerColored (bool hightlight, const char* fmt, ...) {
 	}
 }
 
-bool IsCurrentWindowHovered() {
+inline bool IsCurrentWindowHovered() {
   // Get the current child window
   ImGuiWindow *child = ImGui::GetCurrentWindow();
   // Child window rectangle in absolute coordinates:
@@ -49,7 +49,7 @@ bool IsCurrentWindowHovered() {
   return ImGui::IsMouseHoveringRect(min, max);
 }
 
-void Filewalker (std::string& path, std::vector<std::string>& files) {
+inline void Filewalker (std::string& path, std::vector<std::string>& files) {
   namespace fs = std::filesystem;
   if (path.empty())
     return;

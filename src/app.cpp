@@ -8,6 +8,7 @@
 #include "imgui/ImGui_windowcontrol.h"
 #include <rlImGui.h>
 #include <rlgl.h>
+#include <app/updater.h>
 
 
 namespace fs = std::filesystem;
@@ -171,6 +172,7 @@ void app::Init (int width, int height, const std::string& name) {
   ImGuiIO &io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   auto &wc = WindowControl::Get();
+  wc.RegisterPopup("Update Fenster", true, updater::UpdateWindow);
   wc.LoadSettings();
 }
 
@@ -241,7 +243,12 @@ void app::BeginDrawing () {
   ImGui::End();
   // Drawing all windows
   auto &wc = WindowControl::Get();
+  if (updater::UpdateAvailable)
+    ImGui::OpenPopup("Update Fenster");
   wc.DrawWindows ();
+  if (updater::UpdateInProgress ()) {
+    app.close = true;
+  }
 }
 
 void app::EndDrawing () {
