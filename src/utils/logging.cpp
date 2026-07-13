@@ -75,13 +75,17 @@ namespace logging {
 	void startlogging(const std::string& path, const std::string& filename) {
 		if (fs::is_directory(path))
 			fs::create_directories(path);
+    freopen((path + filename).c_str(), "w", stdout);
+    freopen((path + filename).c_str(), "a", stderr);
 		logfilePath = path;
 		logfileName = filename;
+    /*
 		logfile.open(path + filename, std::ios::out);
 		oldOutBuf = std::cout.rdbuf();
 		oldCerrBuf = std::cerr.rdbuf();
 		std::cout.rdbuf(logfile.rdbuf());
 		std::cerr.rdbuf(logfile.rdbuf());
+		*/
 	}
 	void stoplogging() {
 		logfile.flush();

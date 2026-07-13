@@ -62,6 +62,21 @@ WindowInformation& WindowControl::GetWindowInfo(const std::string& name) {
 
 void WindowControl::DrawWindows() {
   DrawMainMenu();
+  for (auto& [name, pi] : mPopupRegistry) {
+		if (!pi)
+			continue;
+		if (pi.modal) {
+			if (ImGui::BeginPopupModal (name.c_str ())) {
+				pi.function();
+				ImGui::EndPopup();
+			}
+		} else {
+			if (ImGui::BeginPopup (name.c_str ())) {
+				pi.function();
+				ImGui::EndPopup();
+			}
+		}
+  }
   for (auto& [name, wi] : mRegistry) {
     if (!wi)
       continue;
