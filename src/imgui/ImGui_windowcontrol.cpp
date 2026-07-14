@@ -12,7 +12,7 @@ void WindowControl::RegisterWindow(const std::string& name, bool open,
                                    int flags) {
   auto it = mRegistry.find(name);
   if (it != mRegistry.end()) {
-    it->second.function = function;
+    mRegistry[name].function = function;
     return;
   }
   WindowInformation wi;
@@ -145,8 +145,8 @@ void WindowControl::DrawMainMenu() {
 
 void WindowControl::ToggleWindow() {
   for (auto& [name, wi] : mRegistry) {
-    if (!wi.function)
-      return;
+    if (wi.function == nullptr)
+      continue;
     ImGui::Checkbox(name.c_str(), &wi.open);
   }
 }

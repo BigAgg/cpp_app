@@ -172,8 +172,8 @@ void app::Init (int width, int height, const std::string& name) {
   ImGuiIO &io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   auto &wc = WindowControl::Get();
-  wc.RegisterPopup("Update Fenster", true, updater::UpdateWindow);
   wc.LoadSettings();
+  wc.RegisterPopup("Update Fenster", true, updater::UpdateWindow);
 }
 
 void app::Close () {
