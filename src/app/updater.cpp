@@ -51,7 +51,7 @@ void updater::UpdateWindow () {
     ui.inprogress = true;
   }
   ImGui::SeparatorText("Änderungen");
-  ImGui::InputTextMultiline("##Changes", &ui.updateinfo, ImVec2(0, 500), ImGuiInputTextFlags_ReadOnly);
+  ImGui::InputTextMultiline("##Changes", &ui.updateinfo, ImVec2(750, 500), ImGuiInputTextFlags_ReadOnly);
 }
 
 void updater::Init (const std::string& updaterPath, const std::string& installername, const std::string& currentVersion) {
@@ -110,6 +110,7 @@ void updater::Init (const std::string& updaterPath, const std::string& installer
   unsigned int version_avail_major = std::stoi(split_at(version_file, ".").first);
   unsigned int version_avail_minor = std::stoi(split_at(split_at(version_file, ".").second, ".").first);
   unsigned int version_avail_alpha = std::stoi(split_at(split_at(version_file, ".").second, ".").second);
+  ui.updateavail = false;
   // Check for update
   if (version_major < version_avail_major)
     ui.updateavail = true;

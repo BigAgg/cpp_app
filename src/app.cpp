@@ -243,7 +243,7 @@ void app::BeginDrawing () {
   ImGui::End();
   // Drawing all windows
   auto &wc = WindowControl::Get();
-  if (updater::UpdateAvailable)
+  if (updater::UpdateAvailable())
     ImGui::OpenPopup("Update Fenster");
   wc.DrawWindows ();
   if (updater::UpdateInProgress ()) {
