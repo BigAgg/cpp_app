@@ -79,18 +79,16 @@ namespace logging {
     freopen((path + filename).c_str(), "a", stderr);
 		logfilePath = path;
 		logfileName = filename;
-    /*
-		logfile.open(path + filename, std::ios::out);
+		logfile.open(path + filename, std::ios::app);
 		oldOutBuf = std::cout.rdbuf();
 		oldCerrBuf = std::cerr.rdbuf();
 		std::cout.rdbuf(logfile.rdbuf());
 		std::cerr.rdbuf(logfile.rdbuf());
-		*/
 	}
 	void stoplogging() {
-		//logfile.flush();
-		//logfile.close();
-		//std::cout.rdbuf(oldOutBuf);
+		logfile.flush();
+		logfile.close();
+		std::cout.rdbuf(oldOutBuf);
 	}
 	void backuplog(const std::string& path, bool crash) {
 		// Check if the logfile exists

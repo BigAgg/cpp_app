@@ -6,6 +6,8 @@
 #include <Windows.h>
 #include <chrono>
 #include <filesystem>
+#include <fstream>
+#include <thread>
 
 std::string OpenFileDialog(const std::vector<std::string>& filters, std::string delimiter) {
   NFD_Init();
@@ -133,4 +135,21 @@ std::string GetLastWriteTime (const std::string& path) {
   std::stringstream ss;
   ss << std::put_time(std::localtime(&cftime), "%F %T");
   return ss.str();
+}
+
+bool WaitForWritableFile(const std::string &path, std::chrono::milliseconds retryInterval, std::chrono::seconds timeout) {
+  auto start = std::chrono::steady_clock::now();
+
+  while (true) {
+    {
+      std::ofstream file(path, std::ios::app);
+      if (file.is_open())
+        return true;
+    }
+
+    if (std::chrono::steady_clock::now() - start >= timeout)
+      return false;
+
+    std::this_thread::sleep_for(retryInterval);
+  }
 }
