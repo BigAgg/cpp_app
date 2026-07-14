@@ -88,9 +88,9 @@ namespace logging {
 		*/
 	}
 	void stoplogging() {
-		logfile.flush();
-		logfile.close();
-		std::cout.rdbuf(oldOutBuf);
+		//logfile.flush();
+		//logfile.close();
+		//std::cout.rdbuf(oldOutBuf);
 	}
 	void backuplog(const std::string& path, bool crash) {
 		// Check if the logfile exists
