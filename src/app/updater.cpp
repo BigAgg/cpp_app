@@ -6,6 +6,7 @@
 #include <utils/stringconverter.h>
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
+#include "utils/logging.h"
 
 namespace fs = std::filesystem;
 
@@ -55,8 +56,9 @@ void updater::UpdateWindow () {
 }
 
 void updater::Init (const std::string& updaterPath, const std::string& installername, const std::string& currentVersion) {
+  LOG_INFO("Initializing updater:\n\t\t%s\n\t\t%s", updaterPath.c_str(), installername.c_str());
   if (!fs::exists (updaterPath)) {
-    std::fprintf(stderr, "[updater::Init] Updater path does not exist \"%s\"n", updaterPath.c_str());
+    LOG_ERROR("Could not initialize updater: \"%s\" does not exist!", updaterPath.c_str());
     return;
   }
   auto &ui = UpdateInfo::Get();
@@ -68,15 +70,15 @@ void updater::Init (const std::string& updaterPath, const std::string& installer
   bool populate = true;
   if (!fs::exists (ui.versioninfopath)) {
     populate = false;
-    std::fprintf(stderr, "[updater::Init] Versioninfo does not exist \"%s\"n", ui.versioninfopath.c_str());
+    LOG_ERROR("Could not initialize updater: \"%s\" does not exist!", ui.versioninfopath.c_str());
   }
   if (!fs::exists (ui.updaterinfopath)) {
     populate = false;
-    std::fprintf(stderr, "[updater::Init] Updateinfo does not exist \"%s\"n", ui.updaterinfopath.c_str());
+    LOG_ERROR("Could not initialize updater: \"%s\" does not exist!", ui.updaterinfopath.c_str());
   }
   if (!fs::exists (ui.installerpath)) {
     populate = false;
-    std::fprintf(stderr, "[updater::Init] Installer does not exist \"%s\"n", ui.installerpath.c_str());
+    LOG_ERROR("Could not initialize updater: \"%s\" does not exist!", ui.installerpath.c_str());
   }
   if (!populate) {
     return;
@@ -84,7 +86,7 @@ void updater::Init (const std::string& updaterPath, const std::string& installer
   
   std::ifstream file(ui.versioninfopath, std::ios::binary);
   if (!file) {
-    std::fprintf(stderr, "[updater::Init] Unable to load versioninfo \"%s\"n", ui.versioninfopath.c_str());
+    LOG_ERROR("Could not initialize updater: \"%s\" could not be loaded!", ui.versioninfopath.c_str());
     return;
   }
   ui.versioninfo = std::string(
@@ -93,7 +95,7 @@ void updater::Init (const std::string& updaterPath, const std::string& installer
   file.close();
   file.open(ui.updaterinfopath, std::ios::binary);
   if (!file) {
-    std::fprintf(stderr, "[updater::Init] Unable to load updaterinfo \"%s\"n", ui.updaterinfopath.c_str());
+    LOG_ERROR("Could not initialize updater: \"%s\" could not be loaded!", ui.updaterinfopath.c_str());
     return;
   }
   ui.updateinfo = std::string(
@@ -118,4 +120,5 @@ void updater::Init (const std::string& updaterPath, const std::string& installer
     ui.updateavail = true;
   if (version_alpha < version_avail_alpha && version_major == version_avail_major && version_minor == version_avail_minor)
     ui.updateavail = true;
+  LOG_INFO("Updater initialized!");
 }

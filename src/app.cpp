@@ -1,5 +1,6 @@
 #include "app/app.h"
 #include "app/eventmanager.h"
+#include "utils/logging.h"
 #include <raylib.h>
 #include <filesystem>
 #include <fstream>
@@ -122,9 +123,12 @@ static void ClearDropfiles () {
 
 // Initializing window and generating basic structure
 void app::Init (int width, int height, const std::string& name) {
+  LOG_INFO("Initializing Framework...");
   auto &app = App::Get();
-  if (app.initialized)
+  if (app.initialized) {
+		LOG_WARNING("Framework already initialized!");
     return;
+  }
   app.name = name;
   // Checking for paths
   if (!fs::exists(app.workingdir))
@@ -174,9 +178,11 @@ void app::Init (int width, int height, const std::string& name) {
   auto &wc = WindowControl::Get();
   wc.LoadSettings();
   wc.RegisterPopup("Update Fenster", true, updater::UpdateWindow);
+	LOG_INFO("Framework initialized!");
 }
 
 void app::Close () {
+  LOG_INFO("Cleaning Framework...");
   auto &app = App::Get();
   app.close = true;
   if (!app.initialized)
@@ -208,6 +214,7 @@ void app::Close () {
   auto &wc = WindowControl::Get();
   wc.SaveSettings();
   CloseWindow();
+  LOG_INFO("Framework cleaned!");
 }
 
 void app::BeginDrawing () {
@@ -264,14 +271,18 @@ void app::EndDrawing () {
 }
 
 void app::SetIcon (const std::string& filepath) {
+  LOG_INFO("Setting Window Icon: %s", filepath.c_str());
   SetWindowIcon(LoadImage(filepath.c_str()));
 }
 
 void app::SetFont (const std::string& filepath) {
   ImGuiIO &io = ImGui::GetIO();
   ImFont *font = io.Fonts->AddFontFromFileTTF(filepath.c_str(), 18.0f, nullptr, io.Fonts->GetGlyphRangesDefault());
-  if (font)
+  if (font) {
     io.FontDefault = font;
+    LOG_INFO("Font set to: %s", filepath.c_str());
+  } else
+    LOG_WARNING("Font could not be loaded: %s", filepath.c_str());
 }
 
 bool app::Running () {

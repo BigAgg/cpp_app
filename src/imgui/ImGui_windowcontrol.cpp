@@ -1,6 +1,7 @@
 #include "imgui/ImGui_windowcontrol.h"
 #include "imgui/ImGui_themes.h"
 #include "utils/stringconverter.h"
+#include "utils/logging.h"
 #include <cassert>
 #include <fstream>
 #include <imgui.h>
@@ -12,6 +13,8 @@ void WindowControl::RegisterWindow(const std::string& name, bool open,
                                    int flags) {
   auto it = mRegistry.find(name);
   if (it != mRegistry.end()) {
+    if (mRegistry[name].function)
+      LOG_WARNING("Window \"%s\" does already exist! overwriting function!", name.c_str());
     mRegistry[name].function = function;
     return;
   }
@@ -20,22 +23,31 @@ void WindowControl::RegisterWindow(const std::string& name, bool open,
   wi.function = function;
   wi.flags = flags;
   mRegistry[name] = std::move(wi);
+  LOG_INFO("New Window \"%s\" registered!", name.c_str());
 }
 
 void WindowControl::RegisterMenu(const std::string& name,
                                  Function function) {
+  if (!function)
+    LOG_THROW("Invalid function pointer: %p", function);
   auto it = mMenuBarRegistry.find(name);
-  assert(it == mMenuBarRegistry.end() &&
-         "There is already a Menu registered with the same name!");
+  if (it != mMenuBarRegistry.end ()) {
+    LOG_THROW("There is already a Menu registered with the same name: \"%s\"", name.c_str());
+  }
   mMenuBarRegistry[name] = function;
+  LOG_INFO("Menu \"%s\" registered!", name.c_str());
 }
 
 void WindowControl::RegisterPopup (const std::string& name, bool modal, Function function) {
-  assert(function && "nullptr Function for popup is not allowed");
-  assert(!name.empty() && "Empty name is not allowed");
+  if (!function)
+    LOG_THROW("Invalid function pointer: %p", function);
+  if (name.empty())
+    LOG_THROW("Invalid name! Name must contain content, empty value is not allowed!");
   auto it = mPopupRegistry.find(name);
-  assert(it == mPopupRegistry.end() && "There is already a Popup registered with the same name!");
+  if (it != mPopupRegistry.end())
+    LOG_THROW("There is already a Popup registered with the same name! \"%s\"", name.c_str());
   mPopupRegistry[name] = PopupInformation(modal, function);
+  LOG_INFO("Popup \"%s\" registered!", name.c_str());
 }
 
 void WindowControl::ToggleWindow(const std::string& name) {

@@ -22,6 +22,7 @@ static std::vector<std::string> warnings;
 static std::string lastError = "";
 static std::vector<std::string> errors;
 static std::vector<std::string> infos;
+static bool loggingstarted = false;
 
 // Outsource to utils???
 namespace strings {
@@ -52,6 +53,8 @@ namespace logging {
 	namespace fs = std::filesystem;
 	
 	void log(const std::string &type, const std::string &msg, const std::source_location &location) {
+    if (!loggingstarted)
+      return;
 		const std::string filename = std::filesystem::path(location.file_name()).filename().string();
 		if (type == "[ERROR]") {
 			std::string fullMessage = strings::formatString(
@@ -77,15 +80,16 @@ namespace logging {
 			warnings.push_back(lastWarning);
 			infos.push_back("[WARNING] " + msg);
 			std::cout << strings::GetTimestamp() << "\t" << type << "\t" << fullMessage << "\n";
+      logfile.flush();
 		}
 		else if (type == "[INFO]") {
 			std::string fullMessage = strings::formatString(
-				"[%s] %s",
-				location.function_name(),
+				"%s",
 				msg.c_str()
 			);
 			infos.push_back("[INFO] " + fullMessage);
 			std::cout << strings::GetTimestamp() << "\t" << type << "\t" << fullMessage << "\n";
+      logfile.flush();
     } else if (type == "[FATAL]") {
 			std::string fullMessage = strings::formatString(
 				"[%s:%u %s] %s",
@@ -94,14 +98,16 @@ namespace logging {
 				location.function_name(),
 				msg.c_str()
 			);
+			std::cerr << strings::GetTimestamp() << "\t" << type << "\t" << fullMessage << "\n";
+      logfile.flush();
 			lastError = fullMessage;
 			errors.push_back(lastError);
 			infos.push_back("[FATAL] " + fullMessage);
       throw(std::runtime_error((type + "\t" + fullMessage).c_str()));
 		}
-		logfile.flush();
 	}
 	void startlogging(const std::string& path, const std::string& filename) {
+    loggingstarted = true;
 		if (!fs::exists(path))
 			fs::create_directories(path);
 		std::ofstream file(path + "/" + filename, std::ios::app);
@@ -119,6 +125,7 @@ namespace logging {
 		std::cerr.rdbuf(logfile.rdbuf());
 	}
 	void stoplogging() {
+    loggingstarted = false;
 		logfile.flush();
 		logfile.close();
 		std::cout.rdbuf(oldOutBuf);
