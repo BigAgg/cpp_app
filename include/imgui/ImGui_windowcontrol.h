@@ -61,6 +61,7 @@ public:
   void ToggleThemeSelect();
   void ToggleEditFlags();
   void ToggleWindowToggle();
+  void PrintoutAvailableWindows();
 
   const size_t size() const { return mRegistry.size(); }
 

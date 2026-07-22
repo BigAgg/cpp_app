@@ -212,6 +212,7 @@ void app::Close () {
   }
   // Closing window control
   auto &wc = WindowControl::Get();
+  ImGui::SaveIniSettingsToDisk("imgui.ini");
   wc.SaveSettings();
   CloseWindow();
   LOG_INFO("Framework cleaned!");
@@ -222,6 +223,7 @@ void app::BeginDrawing () {
   auto &app = App::Get();
   if (!app.initialized || app.drawing)
     return;
+  auto &wc = WindowControl::Get();
   app.drawing = true;
   ::BeginDrawing();
   ::ClearBackground(BLACK);
@@ -249,7 +251,6 @@ void app::BeginDrawing () {
   ImGui::DockSpace(dockspace_id, ImVec2(0, 0));
   ImGui::End();
   // Drawing all windows
-  auto &wc = WindowControl::Get();
   if (updater::UpdateAvailable())
     ImGui::OpenPopup("Update Fenster");
   wc.DrawWindows ();

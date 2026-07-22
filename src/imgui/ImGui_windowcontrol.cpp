@@ -7,6 +7,7 @@
 #include <imgui.h>
 #include <string>
 #include <utility>
+#include <imgui_internal.h>
 
 void WindowControl::RegisterWindow(const std::string& name, bool open,
                                    Function function,
@@ -92,9 +93,9 @@ void WindowControl::DrawWindows() {
   for (auto& [name, wi] : mRegistry) {
     if (!wi)
       continue;
-    if (ImGui::Begin (name.c_str (), &wi.open, wi.flags)) {
+    if (ImGui::Begin (name.c_str (), &wi.open, wi.flags | ImGuiWindowFlags_NoFocusOnAppearing)) {
       wi.function();
-			for (auto& [name, pi] : mPopupRegistry) {
+      for (auto &[name, pi] : mPopupRegistry) {
 				if (!pi)
 					continue;
 				if (pi.modal) {
