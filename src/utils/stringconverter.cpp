@@ -1,6 +1,8 @@
 #include "utils/stringconverter.h"
 
 #include <string>
+#include <iomanip>
+#include <sstream>
 #include <utility>
 #include <chrono>
 #include <algorithm>
@@ -48,6 +50,21 @@ std::string get_date (const std::string& fmt) {
   auto today = floor<days>(now);
   year_month_day ymd{today};
   return std::vformat(fmt, std::make_format_args(ymd));
+}
+
+long days_between (const std::string& d1, const std::string& d2, const std::string& fmt) {
+  std::tm tm1 = {}, tm2 = {};
+
+  std::istringstream ss1(d1);
+  std::istringstream ss2(d2);
+
+  ss1 >> std::get_time(&tm1, fmt.c_str());
+  ss2 >> std::get_time(&tm2, fmt.c_str());
+
+  auto tp1 = std::chrono::system_clock::from_time_t(std::mktime(&tm1));
+  auto tp2 = std::chrono::system_clock::from_time_t(std::mktime(&tm2));
+
+  return std::chrono::duration_cast<std::chrono::hours>(tp2 - tp1).count() / 24;
 }
 
 std::string get_user () {
