@@ -6,6 +6,7 @@
 #include <utility>
 #include <chrono>
 #include <algorithm>
+#include <source_location>
 #include <Windows.h>
 
 using namespace std::chrono;
@@ -60,6 +61,23 @@ long days_between (const std::string& d1, const std::string& d2, const std::stri
 
   ss1 >> std::get_time(&tm1, fmt.c_str());
   ss2 >> std::get_time(&tm2, fmt.c_str());
+
+  // Error handling
+  if (ss1.fail () && ss2.fail ()) {
+    const std::source_location location = std::source_location::current();
+    const std::string msg = std::string(location.file_name()) + " " + std::string(location.function_name()) + " Failed to get_time for: d1 \"" + d1 + "\" d2 \"" + d2 + "\" fmt \"" + fmt + "\"";
+    throw(std::runtime_error(msg.c_str()));
+  }
+  if (ss1.fail ()) {
+    const std::source_location location = std::source_location::current();
+    const std::string msg = std::string(location.file_name()) + " " + std::string(location.function_name()) + " Failed to get_time for: d1 \"" + d1 + "\" fmt \"" + fmt + "\"";
+    throw(std::runtime_error(msg.c_str()));
+  }
+  if (ss2.fail ()) {
+    const std::source_location location = std::source_location::current();
+    const std::string msg = std::string(location.file_name()) + " " + std::string(location.function_name()) + " Failed to get_time for: d2 \"" + d2 + "\" fmt \"" + fmt + "\"";
+    throw(std::runtime_error(msg.c_str()));
+  }
 
   auto tp1 = std::chrono::system_clock::from_time_t(std::mktime(&tm1));
   auto tp2 = std::chrono::system_clock::from_time_t(std::mktime(&tm2));
