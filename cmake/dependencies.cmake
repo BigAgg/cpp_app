@@ -22,7 +22,7 @@ FetchContent_Declare(
     GIT_TAG curl-8_16_0
 )
 
-FetchContent_MakeAvailable(curl)
+FetchContent_Populate(curl)
 add_subdirectory(
     ${curl_SOURCE_DIR}
     ${curl_BINARY_DIR}
