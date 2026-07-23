@@ -1,16 +1,18 @@
 include(FetchContent)
 
-## ---- libcurl ----
-
+# ---- libcurl ----
 set(BUILD_CURL_EXE OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
-# SSL
+# Disable examples/tests/tools
+set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+set(CURL_DISABLE_TESTS ON CACHE BOOL "" FORCE)
+
+# Optional deps
 set(CURL_USE_OPENSSL OFF CACHE BOOL "" FORCE)
 set(CURL_USE_SCHANNEL ON CACHE BOOL "" FORCE)
-
-# Disable optional dependencies
 set(CURL_USE_LIBPSL OFF CACHE BOOL "" FORCE)
+set(USE_LIBPSL OFF CACHE BOOL "" FORCE)
 set(CURL_ZSTD OFF CACHE BOOL "" FORCE)
 set(CURL_BROTLI OFF CACHE BOOL "" FORCE)
 

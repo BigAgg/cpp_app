@@ -63,6 +63,9 @@ target_link_libraries(${PROJECT_NAME}
         rlimgui
         nfd
         nlohmann_json::nlohmann_json
+)
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
         CURL::libcurl
 )
 
