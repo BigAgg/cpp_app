@@ -23,6 +23,11 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(curl)
+add_subdirectory(
+    ${curl_SOURCE_DIR}
+    ${curl_BINARY_DIR}
+    EXCLUDE_FROM_ALL
+)
 
 # ---- raylib ----
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
