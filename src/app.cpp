@@ -1,6 +1,7 @@
 #include "app/app.h"
 #include "app/eventmanager.h"
 #include "utils/logging.h"
+#include "utils/pipehandler.h"
 #include <raylib.h>
 #include <filesystem>
 #include <fstream>
@@ -10,7 +11,8 @@
 #include <rlImGui.h>
 #include <rlgl.h>
 #include <app/updater.h>
-
+#include <thread>
+#include <atomic>
 
 namespace fs = std::filesystem;
 
@@ -81,6 +83,7 @@ public:
 
   bool initialized = false;
   bool close = true;
+  std::thread instancepipeline;
   std::string name = "App";
   std::string workingdir = "App/";
 
@@ -223,6 +226,7 @@ void app::BeginDrawing () {
   auto &app = App::Get();
   if (!app.initialized || app.drawing)
     return;
+
   auto &wc = WindowControl::Get();
   app.drawing = true;
   ::BeginDrawing();
@@ -308,6 +312,15 @@ void app::DrawStartup (const std::string& filepath) {
   UnloadTexture(t);
 }
 
+bool app::SetSingleInstance(bool single, const std::string& name) {
+  if (!single)
+    return false;
+  if (AlreadyRunning (name)) {
+    return true;
+  }
+  return false;
+}
+
 bool app::HasDropfiles () {
   auto &app = App::Get();
   return app.dragDrop.hasDroppedFile;
@@ -317,3 +330,4 @@ std::vector<std::string> app::GetDropfiles (const std::string& endswith) {
   auto &app = App::Get();
   return app.dragDrop.getFiles(endswith);
 }
+

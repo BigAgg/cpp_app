@@ -10,6 +10,7 @@ void EndDrawing();
 void SetIcon(const std::string &filepath);
 void SetFont(const std::string &filepath);
 void DrawStartup(const std::string& filepath);
+bool SetSingleInstance(bool single, const std::string& name);
 
 bool HasDropfiles();
 std::vector<std::string> GetDropfiles(const std::string &endswith = "");
