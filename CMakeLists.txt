@@ -63,6 +63,7 @@ target_link_libraries(${PROJECT_NAME}
         rlimgui
         nfd
         nlohmann_json::nlohmann_json
+        CURL::libcurl
 )
 
 # ---- export for FetchContent ----
