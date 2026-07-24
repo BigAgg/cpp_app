@@ -69,6 +69,21 @@ target_link_libraries(${PROJECT_NAME}
         CURL::libcurl
 )
 
+# ---- updater ----
+add_executable(updater
+    updater/updater.cpp
+)
+
+target_compile_features(updater PRIVATE cxx_std_23)
+
+function(app_attach_updater target)
+    add_custom_command(TARGET ${target} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:updater>
+            $<TARGET_FILE_DIR:${target}>/updater.exe
+    )
+endfunction()
+
 # ---- export for FetchContent ----
 include(GNUInstallDirs)
 

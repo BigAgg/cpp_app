@@ -126,6 +126,10 @@ static void ClearDropfiles () {
 
 // Initializing window and generating basic structure
 void app::Init (int width, int height, const std::string& name) {
+  if (updater::SilentUpdate ()) {
+    updater::TriggerSilentUpdate(name + ".exe");
+    return;
+  }
   LOG_INFO("Initializing Framework...");
   auto &app = App::Get();
   if (app.initialized) {

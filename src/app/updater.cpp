@@ -8,7 +8,11 @@
 #include <misc/cpp/imgui_stdlib.h>
 #include "utils/logging.h"
 
+#include <curl/curl.h>
+#include <nlohmann/json.hpp>
+
 namespace fs = std::filesystem;
+using json = nlohmann::json;
 
 class UpdateInfo {
 public:
@@ -20,6 +24,7 @@ public:
   bool initialized = false;
   bool updateavail = false;
   bool inprogress = false;
+  bool silentupdate = false;
   std::string versionavail;
   std::string versioncurrent;
   std::string path;
@@ -30,11 +35,37 @@ public:
   std::string versioninfopath;
 };
 
+struct ReleaseInfo {
+  std::string version;
+  std::string downloadUrl;
+  std::string body;
+};
+
+static void TriggerUpdate (const std::string name) {
+  auto &ui = UpdateInfo::Get();
+	fs::copy(ui.installerpath, ".\\installer.exe", fs::copy_options::overwrite_existing);
+	system("start installer.exe");
+	ui.inprogress = true;
+}
+
+void updater::TriggerSilentUpdate (const std::string& exename) {
+  LOG_INFO("Triggering Silent Update!");
+  auto &ui = UpdateInfo::Get();
+  const std::string outpath = fs::current_path().string() + "/" + exename;
+  const std::string cmd = "/C timeout /t 4 /nobreak >nul && copy /Y \"" + ui.installerpath + "\" \"" + outpath + "\" && start\"" + outpath + "\"";
+  system(cmd.c_str());
+}
+
 bool updater::UpdateAvailable () {
   const auto &ui = UpdateInfo::Get();
   if (!ui.initialized)
     return false;
   return ui.updateavail;
+}
+
+bool updater::SilentUpdate () {
+  auto &ui = UpdateInfo::Get();
+  return ui.silentupdate;
 }
 
 bool updater::UpdateInProgress () {
@@ -121,4 +152,134 @@ void updater::Init (const std::string& updaterPath, const std::string& installer
   if (version_alpha < version_avail_alpha && version_major == version_avail_major && version_minor == version_avail_minor)
     ui.updateavail = true;
   LOG_INFO("Updater initialized!");
+}
+
+namespace {
+  size_t WriteCallback (
+    void* contents,
+    size_t size,
+    size_t nmemb,
+    void* userp) {
+  ((std::string *)userp)->append((char *)contents, size * nmemb);
+    return size * nmemb;
+  }
+}
+
+static std::string HttpGet (const std::string& url) {
+  CURL *curl = curl_easy_init();
+
+  if (!curl)
+    return {};
+
+  std::string response;
+
+  curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+  curl_easy_setopt(curl, CURLOPT_USERAGENT, "App-Updater");
+
+  CURLcode result = curl_easy_perform(curl);
+  curl_easy_cleanup(curl);
+
+  if (result != CURLE_OK) {
+    LOG_WARNING("Unable to retrieve result");
+    return {};
+  }
+
+  return response;
+}
+
+static ReleaseInfo GetLatestRelease (const std::string& repo, const std::string& filename) {
+  LOG_INFO("Searching for Update...");
+  std::string apiUrl = repo;
+  if (!apiUrl.contains ("api.github.com")) {
+    if (apiUrl.contains ("github.com")) {
+      replace_all(apiUrl, "github.com", "api.github.com");
+    } else {
+      LOG_ERROR("Invalid github repo: %s", repo.c_str());
+      return ReleaseInfo();
+    }
+  }
+  if (!apiUrl.starts_with("https://"))
+    apiUrl = "https://" + apiUrl;
+
+  auto body = HttpGet(apiUrl);
+
+  if (body.empty ()) {
+    LOG_WARNING("No response received");
+    return {};
+  }
+
+  auto j = json::parse(body, nullptr, false);
+  if (j.is_discarded ()) {
+    LOG_ERROR("Invalid JSON received");
+    return {};
+  }
+  ReleaseInfo info;
+
+  if (!j.contains ("tag_name")) {
+    LOG_WARNING("Unexpected GitHub response:\n%s", j.dump(4).c_str());
+    return ReleaseInfo();
+  }
+  info.version = j.value("tag_name", "");
+  
+  info.body = j.value("body", "");
+  
+  if (!j.contains ("assets")) {
+    LOG_WARNING("Unexpected GitHub response:\n%s", j.dump(4).c_str());
+    return ReleaseInfo();
+  }
+  for (const auto& asset : j["assets"]) {
+    if (asset["name"] == filename) {
+      info.downloadUrl = asset["browser_download_url"];
+      break;
+    }
+  }
+  
+  return info;
+}
+
+static bool DownloadUpdate (const std::string& outputFile, const ReleaseInfo& info) {
+  if (info.downloadUrl.empty())
+    return false;
+
+  CURL *curl = curl_easy_init();
+
+  if (!curl)
+    return false;
+
+  FILE *fp = fopen(outputFile.c_str(), "wb");
+
+  if (!fp) {
+    curl_easy_cleanup(curl);
+    return false;
+  }
+
+  curl_easy_setopt(curl, CURLOPT_URL, info.downloadUrl.c_str());
+  curl_easy_setopt(curl, CURLOPT_USERAGENT, "App-Updater");
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+
+  CURLcode result = curl_easy_perform(curl);
+
+  fclose(fp);
+  curl_easy_cleanup(curl);
+  return result == CURLE_OK;
+}
+
+void updater::InitGit(const std::string &repo, const std::string& filename, const std::string &currentVersion) {
+  const auto &info = GetLatestRelease(repo, filename);
+  LOG_INFO("Update information: %s, %s\n%s", info.version, info.downloadUrl, info.body);
+  const bool updateavail = (info.version != currentVersion && !info.version.empty());
+  if (updateavail) {
+    if (!DownloadUpdate(filename, info))
+      LOG_WARNING("Unable to download update");
+  }
+  auto &ui = UpdateInfo::Get();
+  ui.initialized = true;
+  ui.versionavail = info.version;
+  ui.updateinfo = info.body;
+  ui.versioncurrent = currentVersion;
+  ui.updateavail = updateavail;
+  ui.installerpath = filename;
+  ui.silentupdate = true;
 }
