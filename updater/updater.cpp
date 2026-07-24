@@ -18,7 +18,7 @@ static args ConfigureArgs(int argc, char* argv[]){
     return args();
   args arglist{};
   // Log to file
-	std::ofstream out("updater.info");
+	std::ofstream out("updater.info", std::ios::app);
   // Loop args
 	for(int i = 0; i < argc; i++){
     const std::string arg = argv[i];
@@ -77,8 +77,19 @@ static bool WaitForWritableFile(const std::string &path, std::chrono::millisecon
   }
 }
 
-static void OpenPath(const std::string& path) {
-  ShellExecute(NULL, "open", path.c_str(), NULL, NULL, SW_SHOWDEFAULT);
+static void OpenPath(const std::string& path, std::ofstream &file) {
+  file << "Executing: " << path << "\n";
+  file.flush();
+  auto result = ShellExecuteA(
+      NULL,
+      "open",
+      path.c_str(),
+      "--updated",
+      NULL,
+      SW_SHOWDEFAULT);
+
+  file << "ShellExecute result: " << (INT_PTR)result << "\n";
+  file.flush();
 }
 
 int main(int argc, char* argv[]){
@@ -103,7 +114,8 @@ int main(int argc, char* argv[]){
     }
     if (out)
       out << "Starting " << arglist.outfile << "\n";
-    OpenPath(arglist.outfile);
+    OpenPath(arglist.outfile, out);
+    out.flush();
   }
 	return 0;
 }

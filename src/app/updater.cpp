@@ -65,7 +65,7 @@ bool updater::UpdateAvailable () {
 
 bool updater::SilentUpdate () {
   auto &ui = UpdateInfo::Get();
-  return ui.silentupdate;
+  return ui.silentupdate && ui.updateavail;
 }
 
 bool updater::UpdateInProgress () {
@@ -273,31 +273,22 @@ static bool DownloadUpdate (const std::string& outputFile, const ReleaseInfo& in
 void updater::InitGit(const std::string &repo, const std::string& filename, const std::string &currentVersion) {
   const auto &info = GetLatestRelease(repo, filename);
   LOG_INFO("Update information: %s, %s\n%s", info.version, info.downloadUrl, info.body);
-  const bool updateavail = (info.version != currentVersion && !info.version.empty());
-  if (updateavail) {
-    if (!DownloadUpdate (filename, info)) {
-      LOG_WARNING("Unable to download update");
-      return;
-    }
-  }
   auto &ui = UpdateInfo::Get();
   ui.initialized = true;
   ui.versionavail = info.version;
   ui.updateinfo = info.body;
   ui.versioncurrent = currentVersion;
-  ui.updateavail = updateavail;
   ui.installerpath = fs::current_path().string() + "\\" + filename;
-  if (ui.versionavail.contains ("-")) {
+  if (ui.versionavail.contains("-")) {
     const auto &[version, trigger] = split_at(ui.versionavail, "-");
     if (trigger == "silent")
       ui.silentupdate = true;
   }
-  std::string version = ui.versioncurrent;
+  std::string version = currentVersion;
   unsigned int version_major = std::stoi(split_at(version, ".").first);
   unsigned int version_minor = std::stoi(split_at(split_at(version, ".").second, ".").first);
   unsigned int version_alpha = std::stoi(split_at(split_at(version, ".").second, ".").second);
-  std::string version_file = split_at(ui.versioninfo, "-").first;
-  ui.versionavail = version_file;
+  std::string version_file = split_at(info.version, "-").first;
   unsigned int version_avail_major = std::stoi(split_at(version_file, ".").first);
   unsigned int version_avail_minor = std::stoi(split_at(split_at(version_file, ".").second, ".").first);
   unsigned int version_avail_alpha = std::stoi(split_at(split_at(version_file, ".").second, ".").second);
@@ -309,4 +300,11 @@ void updater::InitGit(const std::string &repo, const std::string& filename, cons
     ui.updateavail = true;
   if (version_alpha < version_avail_alpha && version_major == version_avail_major && version_minor == version_avail_minor)
     ui.updateavail = true;
+  if (ui.updateavail) {
+    if (!DownloadUpdate (filename, info)) {
+      LOG_WARNING("Unable to download update");
+      return;
+    }
+  } else
+    return;
 }
