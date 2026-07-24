@@ -52,7 +52,7 @@ void updater::TriggerSilentUpdate (const std::string& exename) {
   LOG_INFO("Triggering Silent Update!");
   auto &ui = UpdateInfo::Get();
   const std::string outpath = fs::current_path().string() + "/" + exename;
-  const std::string cmd = "/C timeout /t 4 /nobreak >nul && copy /Y \"" + ui.installerpath + "\" \"" + outpath + "\" && start\"" + outpath + "\"";
+  const std::string cmd = "start updater.exe --infile \"" + ui.installerpath + "\" --outfile \"" + outpath + "\"";
   system(cmd.c_str());
 }
 
