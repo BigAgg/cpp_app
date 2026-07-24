@@ -81,6 +81,7 @@ function(app_attach_updater target)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             $<TARGET_FILE:updater>
             $<TARGET_FILE_DIR:${target}>/updater.exe
+        VERBATIM
     )
 endfunction()
 

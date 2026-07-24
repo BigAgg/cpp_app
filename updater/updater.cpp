@@ -5,16 +5,15 @@
 
 namespace fs = std::filesystem;
 
-struct args{
-	std::string infile = "";
-	std::string outfile = "";
-}
+struct args {
+  std::string infile = "";
+  std::string outfile = "";
+};
 
-void ConfigureArgs(int argc, char* argv[]){
-	if(argc < 2)
-		return;
+static void ConfigureArgs(int argc, char* argv[]){
+	std::cout << "configuring args\n";
 	std::ofstream out("updater.info");
-	for(int i = 1; i < argc; i++){
+	for(int i = 0; i < argc; i++){
 		std::cout << argv[i] << "\n";
 		out << argv[i] << "\n";
 	}
