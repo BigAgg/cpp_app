@@ -292,4 +292,21 @@ void updater::InitGit(const std::string &repo, const std::string& filename, cons
     if (trigger == "silent")
       ui.silentupdate = true;
   }
+  std::string version = ui.versioncurrent;
+  unsigned int version_major = std::stoi(split_at(version, ".").first);
+  unsigned int version_minor = std::stoi(split_at(split_at(version, ".").second, ".").first);
+  unsigned int version_alpha = std::stoi(split_at(split_at(version, ".").second, ".").second);
+  std::string version_file = split_at(ui.versioninfo, "-").first;
+  ui.versionavail = version_file;
+  unsigned int version_avail_major = std::stoi(split_at(version_file, ".").first);
+  unsigned int version_avail_minor = std::stoi(split_at(split_at(version_file, ".").second, ".").first);
+  unsigned int version_avail_alpha = std::stoi(split_at(split_at(version_file, ".").second, ".").second);
+  ui.updateavail = false;
+  // Check for update
+  if (version_major < version_avail_major)
+    ui.updateavail = true;
+  if (version_minor < version_avail_minor && version_major == version_avail_major)
+    ui.updateavail = true;
+  if (version_alpha < version_avail_alpha && version_major == version_avail_major && version_minor == version_avail_minor)
+    ui.updateavail = true;
 }
