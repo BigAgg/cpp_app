@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <string>
 #include <thread>
+#include <Windows.h>
 
 namespace fs = std::filesystem;
 
@@ -76,22 +77,33 @@ static bool WaitForWritableFile(const std::string &path, std::chrono::millisecon
   }
 }
 
+static void OpenPath(const std::string& path) {
+  ShellExecute(NULL, "open", path.c_str(), NULL, NULL, SW_SHOWDEFAULT);
+}
+
 int main(int argc, char* argv[]){
-	const args arglist = ConfigureArgs(argc, argv);
+	args arglist = ConfigureArgs(argc, argv);
   if (arglist.infile.empty() || arglist.outfile.empty())
     return 1;
   std::ofstream out("updater.info", std::ios::app);
-  while (WaitForWritableFile (arglist.outfile, std::chrono::milliseconds (100), std::chrono::seconds (1))) {
+  while (!WaitForWritableFile (arglist.outfile, std::chrono::milliseconds (1000), std::chrono::seconds (1))) {
     if (out)
       out << "Waiting for file to be writable: " << arglist.outfile << "\n";
     std::cout << "Waiting for file to be writable: " << arglist.outfile << "\n";
   }
-  fs::copy(arglist.infile, arglist.outfile);
+  fs::copy(arglist.infile, arglist.outfile, fs::copy_options::overwrite_existing);
   if (arglist.startafter) {
+    for (char& c : arglist.infile) {
+      if (c == '\\')
+        c = '/';
+    }
+    for (char& c : arglist.outfile) {
+      if (c == '\\')
+        c = '/';
+    }
     if (out)
       out << "Starting " << arglist.outfile << "\n";
-    std::cout << "Starting " << arglist.outfile << "\n";
-    system(("start " + arglist.outfile).c_str());
+    OpenPath(arglist.outfile);
   }
 	return 0;
 }

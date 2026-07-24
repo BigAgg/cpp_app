@@ -51,8 +51,8 @@ static void TriggerUpdate (const std::string name) {
 void updater::TriggerSilentUpdate (const std::string& exename) {
   LOG_INFO("Triggering Silent Update!");
   auto &ui = UpdateInfo::Get();
-  const std::string outpath = fs::current_path().string() + "/" + exename;
-  const std::string cmd = "start updater.exe --infile \"" + ui.installerpath + "\" --outfile \"" + outpath + "\"";
+  const std::string outpath = fs::current_path().string() + "\\" + exename;
+  const std::string cmd = "start updater.exe --infile \"" + ui.installerpath + "\" --outfile \"" + outpath + "\" --start";
   system(cmd.c_str());
 }
 
@@ -255,9 +255,13 @@ static bool DownloadUpdate (const std::string& outputFile, const ReleaseInfo& in
     return false;
   }
 
+  LOG_INFO("Downloading from URL: %s", info.downloadUrl.c_str());
+
   curl_easy_setopt(curl, CURLOPT_URL, info.downloadUrl.c_str());
   curl_easy_setopt(curl, CURLOPT_USERAGENT, "App-Updater");
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fwrite);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 
   CURLcode result = curl_easy_perform(curl);
 
@@ -271,8 +275,10 @@ void updater::InitGit(const std::string &repo, const std::string& filename, cons
   LOG_INFO("Update information: %s, %s\n%s", info.version, info.downloadUrl, info.body);
   const bool updateavail = (info.version != currentVersion && !info.version.empty());
   if (updateavail) {
-    if (!DownloadUpdate(filename, info))
+    if (!DownloadUpdate (filename, info)) {
       LOG_WARNING("Unable to download update");
+      return;
+    }
   }
   auto &ui = UpdateInfo::Get();
   ui.initialized = true;
@@ -280,6 +286,10 @@ void updater::InitGit(const std::string &repo, const std::string& filename, cons
   ui.updateinfo = info.body;
   ui.versioncurrent = currentVersion;
   ui.updateavail = updateavail;
-  ui.installerpath = fs::current_path().string() + "/" + filename;
-  ui.silentupdate = true;
+  ui.installerpath = fs::current_path().string() + "\\" + filename;
+  if (ui.versionavail.contains ("-")) {
+    const auto &[version, trigger] = split_at(ui.versionavail, "-");
+    if (trigger == "silent")
+      ui.silentupdate = true;
+  }
 }
