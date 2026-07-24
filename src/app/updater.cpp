@@ -280,6 +280,6 @@ void updater::InitGit(const std::string &repo, const std::string& filename, cons
   ui.updateinfo = info.body;
   ui.versioncurrent = currentVersion;
   ui.updateavail = updateavail;
-  ui.installerpath = filename;
+  ui.installerpath = fs::current_path().string() + "/" + filename;
   ui.silentupdate = true;
 }
