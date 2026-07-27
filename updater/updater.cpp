@@ -103,6 +103,7 @@ int main(int argc, char* argv[]){
     std::cout << "Waiting for file to be writable: " << arglist.outfile << "\n";
   }
   fs::copy(arglist.infile, arglist.outfile, fs::copy_options::overwrite_existing);
+  Sleep(3000);
   if (arglist.startafter) {
     for (char& c : arglist.infile) {
       if (c == '\\')
