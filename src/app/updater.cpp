@@ -273,6 +273,7 @@ static bool DownloadUpdate (const std::string& outputFile, const ReleaseInfo& in
 void updater::InitGit(const std::string &repo, const std::string& filename, const std::string &currentVersion) {
   std::ifstream infile("update_info.txt");
   if (infile) {
+    infile.close();
     std::remove("update_info.txt");
     return;
   }
