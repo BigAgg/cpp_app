@@ -7,7 +7,6 @@
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 #include "utils/logging.h"
-#include "utils/filedialog.h"
 
 #include <curl/curl.h>
 #include <nlohmann/json.hpp>
@@ -54,7 +53,6 @@ void updater::TriggerSilentUpdate (const std::string& exename) {
   auto &ui = UpdateInfo::Get();
   const std::string outpath = fs::current_path().string() + "\\" + exename;
   const std::string cmd = "start updater.exe --infile \"" + ui.installerpath + "\" --outfile \"" + outpath + "\" --start";
-  OpenPath("update_info.txt");
   system(cmd.c_str());
 }
 
@@ -273,6 +271,11 @@ static bool DownloadUpdate (const std::string& outputFile, const ReleaseInfo& in
 }
 
 void updater::InitGit(const std::string &repo, const std::string& filename, const std::string &currentVersion) {
+  std::ifstream infile("update_info.txt");
+  if (infile) {
+    std::remove("update_info.txt");
+    return;
+  }
   const auto &info = GetLatestRelease(repo, filename);
   LOG_INFO("Update information: %s, %s\n%s", info.version, info.downloadUrl, info.body);
   auto &ui = UpdateInfo::Get();
@@ -303,8 +306,8 @@ void updater::InitGit(const std::string &repo, const std::string& filename, cons
   if (version_alpha < version_avail_alpha && version_major == version_avail_major && version_minor == version_avail_minor)
     ui.updateavail = true;
   if (ui.updateavail) {
-    std::ofstream file("update_info.txt");
-    file << info.body;
+		std::ofstream file("update_info.txt");
+		file << remove_empty_lines(info.body);
     if (!DownloadUpdate (filename, info)) {
       LOG_WARNING("Unable to download update");
       ui.updateavail = false;

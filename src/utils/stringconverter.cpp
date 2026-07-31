@@ -1,6 +1,7 @@
 #include "utils/stringconverter.h"
 
 #include <string>
+#include <regex>
 #include <iomanip>
 #include <sstream>
 #include <utility>
@@ -38,6 +39,14 @@ bool replace_first(std::string &str, std::string_view from, std::string_view to)
     return false;
   str.replace(pos, from.length(), to);
   return true;
+}
+
+std::string remove_empty_lines(const std::string &text) {
+  // Remove lines that contain only whitespace
+  return std::regex_replace(
+      text,
+      std::regex(R"(^[ \t\f\v\r]*\n?)", std::regex::multiline),
+      "");
 }
 
 std::string to_lower (const std::string& s) {
