@@ -186,6 +186,10 @@ void WindowControl::ThemeSelector() {
       SetTheme(ROSEPINE_LIGHT);
       mTheme = ROSEPINE_LIGHT;
     }
+    if (ImGui::Button ("Nimble")) {
+      SetTheme(NIMBLE_LIGHT);
+      mTheme = NIMBLE_LIGHT;
+    }
     ImGui::EndMenu();
   }
   if (ImGui::BeginMenu("Dark Themes")) {
@@ -208,6 +212,10 @@ void WindowControl::ThemeSelector() {
     if (ImGui::Button("Rose")) {
       SetTheme(ROSEPINE_DARK);
       mTheme = ROSEPINE_DARK;
+    }
+    if (ImGui::Button ("Nimble")) {
+      SetTheme(NIMBLE_DARK);
+      mTheme = NIMBLE_DARK;
     }
     ImGui::EndMenu();
   }
