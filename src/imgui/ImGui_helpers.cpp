@@ -194,7 +194,7 @@ static bool ComboBox(const std::string &label, const std::vector<std::string> &i
   return res;
 }
 
-bool DatePickerEx(const std::string &label, tm &v, ImFont *altFont, bool clampToBorder, float itemSpacing) {
+bool DatePickerEx(const std::string &label, tm &v, ImFont *altFont, bool clampToBorder, float itemSpacing, float width) {
   bool res = false;
 
   ImGuiWindow *window = GetCurrentWindow();
@@ -215,6 +215,7 @@ bool DatePickerEx(const std::string &label, tm &v, ImFont *altFont, bool clampTo
   const ImVec2 windowSize = ImVec2(274.5f, 301.5f);
   SetNextWindowSize(windowSize);
 
+  ImGui::SetNextItemWidth(width);
   if (BeginCombo(std::string("##" + myLabel).c_str(), TimePointToLongString(v).c_str())) {
     int monthIdx = GET_MONTH_UNSCALED(v);
     int year = GET_YEAR(v);
@@ -342,7 +343,7 @@ bool DatePickerEx(const std::string &label, tm &v, ImFont *altFont, bool clampTo
   return res;
 }
 
-bool DatePicker(const std::string &label, tm &v, bool clampToBorder, float itemSpacing) {
-  return DatePickerEx(label, v, nullptr, clampToBorder, itemSpacing);
+bool DatePicker(const std::string &label, tm &v, bool clampToBorder, float itemSpacing, float width) {
+  return DatePickerEx(label, v, nullptr, clampToBorder, itemSpacing, width);
 }
 } // namespace ImGui
