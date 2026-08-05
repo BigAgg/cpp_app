@@ -17,28 +17,28 @@
 namespace ImGui {
 static const std::vector<std::string> MONTHS =
     {
-        "January",
-        "February",
-        "March",
+        "Januar",
+        "Februar",
+        "März",
         "April",
-        "May",
-        "June",
-        "July",
+        "Mai",
+        "Juni",
+        "Juli",
         "August",
         "September",
-        "October",
+        "Oktober",
         "November",
-        "December"};
+        "Dezember"};
 
 static const std::vector<std::string> DAYS =
     {
         "Mo",
-        "Tu",
-        "We",
-        "Th",
+        "Di",
+        "Mi",
+        "Do",
         "Fr",
         "Sa",
-        "Su"};
+        "So"};
 
 // Implements Zeller's Congruence to determine the day of week [1, 7](Mon-Sun) from the given parameters
 inline static int DayOfWeek(int dayOfMonth, int month, int year) noexcept {
@@ -194,7 +194,7 @@ static bool ComboBox(const std::string &label, const std::vector<std::string> &i
   return res;
 }
 
-bool DatePickerEx(const std::string &label, tm &v, ImFont *altFont, bool clampToBorder, float itemSpacing, float width) {
+bool DatePickerEx(const std::string &label, tm &v, ImFont *altFont, const std::string& prev, bool clampToBorder, float itemSpacing, float width) {
   bool res = false;
 
   ImGuiWindow *window = GetCurrentWindow();
@@ -216,7 +216,7 @@ bool DatePickerEx(const std::string &label, tm &v, ImFont *altFont, bool clampTo
   SetNextWindowSize(windowSize);
 
   ImGui::SetNextItemWidth(width);
-  if (BeginCombo(std::string("##" + myLabel).c_str(), TimePointToLongString(v).c_str())) {
+  if (BeginCombo(std::string("##" + myLabel).c_str(), prev.c_str())) {
     int monthIdx = GET_MONTH_UNSCALED(v);
     int year = GET_YEAR(v);
 
@@ -343,7 +343,7 @@ bool DatePickerEx(const std::string &label, tm &v, ImFont *altFont, bool clampTo
   return res;
 }
 
-bool DatePicker(const std::string &label, tm &v, bool clampToBorder, float itemSpacing, float width) {
-  return DatePickerEx(label, v, nullptr, clampToBorder, itemSpacing, width);
+bool DatePicker(const std::string &label, tm &v, const std::string& prev, bool clampToBorder, float itemSpacing, float width) {
+  return DatePickerEx(label, v, nullptr, prev, clampToBorder, itemSpacing, width);
 }
 } // namespace ImGui

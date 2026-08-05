@@ -95,8 +95,8 @@ inline void Filewalker (std::string& path, std::vector<std::string>& files) {
 #define IMGUI_DATEPICKER_YEAR_MAX 3000
 #endif // !IMGUI_DATEPICKER_YEAR_MAX
 
-IMGUI_API bool DatePickerEx(const std::string &label, tm &v, ImFont *altFont, bool clampToBorder = false, float itemSpacing = 130.0f, float width = 170.0f);
+IMGUI_API bool DatePickerEx(const std::string &label, tm &v, ImFont *altFont, const std::string &prev, bool clampToBorder = false, float itemSpacing = 130.0f, float width = 170.0f);
 
-IMGUI_API bool DatePicker(const std::string &label, tm &v, bool clampToBorder = false, float itemSpacing = 0.0f, float width = 170.0f);
+IMGUI_API bool DatePicker(const std::string &label, tm &v, const std::string &prev, bool clampToBorder = false, float itemSpacing = 0.0f, float width = 170.0f);
 }
 
