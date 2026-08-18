@@ -6,6 +6,7 @@
 std::pair<std::string, std::string> split_at(const std::string &input, const std::string &delimiter);
 void replace_all(std::string &str, std::string_view from, std::string_view to);
 bool replace_first(std::string &str, std::string_view from, std::string_view to);
+void remove_whitespace(std::string &str, bool removeSpaces = false);
 std::string remove_empty_lines(const std::string &text);
 std::string to_lower(const std::string &s);
 std::string get_date(const std::string &fmt);

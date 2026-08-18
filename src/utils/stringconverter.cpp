@@ -41,6 +41,21 @@ bool replace_first(std::string &str, std::string_view from, std::string_view to)
   return true;
 }
 
+void remove_whitespace (std::string& str, bool removeSpaces) {
+  std::string result;
+  result.reserve(str.size());
+
+  for (unsigned char c : str) {
+    if (c == ' ') {
+      if (!removeSpaces)
+        result += c;
+    } else if (!std::isspace(c)) {
+      result += c;
+    }
+  }
+  str = result;
+}
+
 std::string remove_empty_lines(const std::string &text) {
   // Remove lines that contain only whitespace
   return std::regex_replace(
@@ -209,8 +224,9 @@ bool is_integer (const std::string& str) {
   }
 
   for (; pos < str.size(); ++pos) {
-    if (!std::isdigit(static_cast<unsigned char>(str[pos])))
+    if (!std::isdigit (static_cast<unsigned char> (str[pos]))) {
       return false;
+    }
   }
 
   return true;

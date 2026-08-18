@@ -40,40 +40,40 @@ static void ApplyTableColors(const ImVec4& surface, const ImVec4& accent, bool d
 void SetTheme(Themes theme) {
   switch (theme) {
   case Themes::LIGHT:
-    ThemeModernBlueLight();
+    ImGui::StyleColorsLight();
     break;
   case Themes::DARK:
-    ThemeModernBlueDark();
+    ImGui::StyleColorsDark();
     break;
   case Themes::GOLD_DARK:
-    ThemeModernGoldDark();
+    ThemeGoldDark();
     break;
   case Themes::PURPLE_LIGHT:
-    ThemeModernPurpleLight();
+    ThemePurpleLight();
     break;
   case Themes::PURPLE_DARK:
-    ThemeModernPurpleDark();
+    ThemePurpleDark();
     break;
   case Themes::GIRLY_PINK:
-    ThemeModernGirlyPink();
+    ThemeGirlyPink();
     break;
   case Themes::NOCTUA_LIGHT:
-    ThemeModernNoctuaLight();
+    ThemeNoctuaLight();
     break;
   case Themes::NOCTUA_DARK:
-    ThemeModernNoctuaDark();
+    ThemeNoctuaDark();
     break;
   case Themes::ROSEPINE_LIGHT:
-    ThemeModernRosePineLight();
+    ThemeRosePineLight();
     break;
   case Themes::ROSEPINE_DARK:
-    ThemeModernRosePineDark();
+    ThemeRosePineDark();
     break;
   case Themes::NIMBLE_LIGHT:
-    ThemeModernNimbleLight();
+    ThemeNimbleLight();
     break;
   case Themes::NIMBLE_DARK:
-    ThemeModernNimbleDark();
+    ThemeNimbleDark();
     break;
   case Themes::MODERN_LIGHT:
     ThemeModernLight();
@@ -83,7 +83,7 @@ void SetTheme(Themes theme) {
     break;
   case Themes::GOLD_LIGHT:
   default:
-    ThemeModernGoldLight();
+    ThemeGoldLight();
     break;
   }
 }
