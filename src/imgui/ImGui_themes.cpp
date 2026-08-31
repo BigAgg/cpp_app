@@ -37,43 +37,43 @@ static void ApplyTableColors(const ImVec4& surface, const ImVec4& accent, bool d
 // the same names in the menu, but with the elevation, spacing and depth of the
 // modern themes instead of the flat mapping below. The classic Theme*()
 // functions are kept intact and can still be called directly.
-void SetTheme(Themes theme) {
+void SetTheme(Themes theme, bool modern) {
   switch (theme) {
   case Themes::LIGHT:
-    ImGui::StyleColorsLight();
+    modern ? ThemeModernBlueLight() : ImGui::StyleColorsLight();
     break;
   case Themes::DARK:
-    ImGui::StyleColorsDark();
+    modern ? ThemeModernBlueDark() : ImGui::StyleColorsDark();
     break;
   case Themes::GOLD_DARK:
-    ThemeGoldDark();
+    modern ? ThemeModernGoldDark() : ThemeGoldDark();
     break;
   case Themes::PURPLE_LIGHT:
-    ThemePurpleLight();
+    modern ? ThemeModernPurpleLight() : ThemePurpleLight();
     break;
   case Themes::PURPLE_DARK:
-    ThemePurpleDark();
+    modern ? ThemeModernPurpleDark() : ThemePurpleDark();
     break;
   case Themes::GIRLY_PINK:
-    ThemeGirlyPink();
+    modern ? ThemeModernGirlyPink() : ThemeGirlyPink();
     break;
   case Themes::NOCTUA_LIGHT:
-    ThemeNoctuaLight();
+    modern ? ThemeModernNoctuaLight() : ThemeNoctuaLight();
     break;
   case Themes::NOCTUA_DARK:
-    ThemeNoctuaDark();
+    modern ? ThemeModernNoctuaDark() : ThemeNoctuaDark();
     break;
   case Themes::ROSEPINE_LIGHT:
-    ThemeRosePineLight();
+    modern ? ThemeModernRosePineLight() : ThemeRosePineLight();
     break;
   case Themes::ROSEPINE_DARK:
-    ThemeRosePineDark();
+    modern ? ThemeModernRosePineDark() : ThemeRosePineDark();
     break;
   case Themes::NIMBLE_LIGHT:
-    ThemeNimbleLight();
+    modern ? ThemeModernNimbleLight() : ThemeNimbleLight();
     break;
   case Themes::NIMBLE_DARK:
-    ThemeNimbleDark();
+    modern ? ThemeModernNimbleDark() : ThemeNimbleDark();
     break;
   case Themes::MODERN_LIGHT:
     ThemeModernLight();
@@ -83,13 +83,13 @@ void SetTheme(Themes theme) {
     break;
   case Themes::GOLD_LIGHT:
   default:
-    ThemeGoldLight();
+    modern ? ThemeModernGoldLight() : ThemeGoldLight();
     break;
   }
 }
 
-void SetTheme(unsigned int theme) {
-  SetTheme((Themes)theme);
+void SetTheme(unsigned int theme, bool modern) {
+  SetTheme((Themes)theme, modern);
 }
 
 void ThemeGirlyPink()

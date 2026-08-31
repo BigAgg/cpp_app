@@ -165,56 +165,66 @@ void WindowControl::ToggleWindow() {
 }
 
 void WindowControl::ThemeSelector() {
+  static bool modernToLegacy = false;
+  if (ImGui::Checkbox ("Modern", &mModernTheme)) {
+    if (!mModernTheme)
+      modernToLegacy = true;
+    else
+      modernToLegacy = false;
+    SetTheme(mTheme, mModernTheme);
+  }
+  if (modernToLegacy)
+    ImGui::TextColored(ImVec4(255, 0, 0, 255), "Neustart erforderlich!");
   if (ImGui::BeginMenu("Light Themes")) {
     if (ImGui::Button("Normal")) {
-      SetTheme(LIGHT);
+      SetTheme(LIGHT, mModernTheme);
       mTheme = LIGHT;
     }
     if (ImGui::Button("Gold")) {
-      SetTheme(GOLD_LIGHT);
+      SetTheme(GOLD_LIGHT, mModernTheme);
       mTheme = GOLD_LIGHT;
     }
     if (ImGui::Button("Lila")) {
-      SetTheme(PURPLE_LIGHT);
+      SetTheme(PURPLE_LIGHT, mModernTheme);
       mTheme = PURPLE_LIGHT;
     }
     if (ImGui::Button("Braun")) {
-      SetTheme(NOCTUA_LIGHT);
+      SetTheme(NOCTUA_LIGHT, mModernTheme);
       mTheme = NOCTUA_LIGHT;
     }
     if (ImGui::Button("Rose")) {
-      SetTheme(ROSEPINE_LIGHT);
+      SetTheme(ROSEPINE_LIGHT, mModernTheme);
       mTheme = ROSEPINE_LIGHT;
     }
     if (ImGui::Button ("Nimble")) {
-      SetTheme(NIMBLE_LIGHT);
+      SetTheme(NIMBLE_LIGHT, mModernTheme);
       mTheme = NIMBLE_LIGHT;
     }
     ImGui::EndMenu();
   }
   if (ImGui::BeginMenu("Dark Themes")) {
     if (ImGui::Button("Normal")) {
-      SetTheme(DARK);
+      SetTheme(DARK, mModernTheme);
       mTheme = DARK;
     }
     if (ImGui::Button("Gold")) {
-      SetTheme(GOLD_DARK);
+      SetTheme(GOLD_DARK, mModernTheme);
       mTheme = GOLD_DARK;
     }
     if (ImGui::Button("Lila")) {
-      SetTheme(PURPLE_DARK);
+      SetTheme(PURPLE_DARK, mModernTheme);
       mTheme = PURPLE_DARK;
     }
     if (ImGui::Button("Braun")) {
-      SetTheme(NOCTUA_DARK);
+      SetTheme(NOCTUA_DARK, mModernTheme);
       mTheme = NOCTUA_DARK;
     }
     if (ImGui::Button("Rose")) {
-      SetTheme(ROSEPINE_DARK);
+      SetTheme(ROSEPINE_DARK, mModernTheme);
       mTheme = ROSEPINE_DARK;
     }
     if (ImGui::Button ("Nimble")) {
-      SetTheme(NIMBLE_DARK);
+      SetTheme(NIMBLE_DARK, mModernTheme);
       mTheme = NIMBLE_DARK;
     }
     ImGui::EndMenu();
@@ -293,6 +303,7 @@ void WindowControl::SaveSettings() {
   // Saving behavior settings
   file << "[Settings]\n";
   file << "Theme=" << std::to_string(mTheme) << "\n";
+  file << "ModernTheme=" << mModernTheme << "\n";
   file << "\n";
   // Saving each window settings
   for (const auto& [name, wi] : mRegistry) {
@@ -324,6 +335,8 @@ void WindowControl::LoadSettings() {
         const auto& [name, value] = split_at(line, "=");
         if (name == "Theme") {
           mTheme = static_cast<unsigned char>(std::stoi(value));
+        } else if (name == "ModernTheme") {
+          mModernTheme = static_cast<bool>(std::stoi(value));
         }
       }
     }
@@ -349,7 +362,7 @@ void WindowControl::LoadSettings() {
     }
   }
   file.close();
-  SetTheme(mTheme);
+  SetTheme(mTheme, mModernTheme);
 }
 
 void WindowControl::ToggleThemeSelect() {

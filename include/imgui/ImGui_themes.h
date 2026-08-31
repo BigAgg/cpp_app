@@ -37,5 +37,5 @@ void ThemeNimbleDark();
 void ThemeModernLight();
 void ThemeModernDark();
 
-void SetTheme(Themes theme);
-void SetTheme(unsigned int theme);
+void SetTheme(Themes theme, bool modern = false);
+void SetTheme(unsigned int theme, bool modern = false);

@@ -71,6 +71,7 @@ private:
   std::map<std::string, Function> mMenuBarRegistry;
   std::string mSelectedWindow;
   unsigned char mTheme = 0;
+  bool mModernTheme = false;
   bool mEditFlagsOpen = false;
   bool mThemeSelectOpen = false;
   bool mWindowToggleOpen = false;

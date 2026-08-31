@@ -132,7 +132,7 @@ void ApplyModernTheme(const ModernPalette &p, const ModernMetrics &m) {
 	// -----------------------------------------------------------------------
 	c[ImGuiCol_Text] = p.text;
 	c[ImGuiCol_TextDisabled] = p.textMuted;
-	c[ImGuiCol_TextSelectedBg] = Alpha(p.accent, 0.32f);
+	c[ImGuiCol_TextSelectedBg] = Alpha(p.accent, 0.62f);
 	c[ImGuiCol_TextLink] = p.accent;
 	c[ImGuiCol_InputTextCursor] = p.accent;
 
@@ -178,9 +178,9 @@ void ApplyModernTheme(const ModernPalette &p, const ModernMetrics &m) {
 	c[ImGuiCol_ButtonActive] = p.fieldActive;
 
 	// Headers (Selectable, TreeNode, MenuItem, CollapsingHeader)
-	c[ImGuiCol_Header] = Alpha(p.accent, p.dark ? 0.22f : 0.18f);
-	c[ImGuiCol_HeaderHovered] = Alpha(p.accent, p.dark ? 0.32f : 0.26f);
-	c[ImGuiCol_HeaderActive] = Alpha(p.accent, p.dark ? 0.45f : 0.38f);
+	c[ImGuiCol_Header] = Alpha(p.accent, p.dark ? 0.40f : 0.44f);
+	c[ImGuiCol_HeaderHovered] = Alpha(p.accent, p.dark ? 0.55f : 0.49f);
+	c[ImGuiCol_HeaderActive] = Alpha(p.accent, p.dark ? 0.75f : 0.68f);
 
 	// Separators
 	c[ImGuiCol_Separator] = p.separator;
