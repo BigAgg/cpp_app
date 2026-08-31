@@ -75,12 +75,28 @@ void SendPipeMessage(const std::wstring &msg, const std::string &appname) {
 }
 
 bool AlreadyRunning(const std::string &appname) {
-  HWND hwnd = FindWindowA(nullptr, appname.c_str());
-  if (hwnd) {
-    if (IsIconic(hwnd))
-      ShowWindow(hwnd, SW_RESTORE);
-    SetForegroundWindow(hwnd);
-    BringWindowToTop(hwnd);
+  // Use a global mutex for single instance detection
+  // This is more reliable than window search and won't conflict with IDE windows
+  std::wstring mutexName = L"Global\\ServiceTracker_" + std::wstring(appname.begin(), appname.end());
+
+  HANDLE hMutex = CreateMutexW(nullptr, TRUE, mutexName.c_str());
+
+  if (hMutex == nullptr)
+    return true; // Error creating mutex means something is wrong
+
+  if (GetLastError() == ERROR_ALREADY_EXISTS) {
+    CloseHandle(hMutex);
+    // Try to find and activate existing window
+    HWND hwnd = FindWindowA(nullptr, appname.c_str());
+    if (hwnd) {
+      if (IsIconic(hwnd))
+        ShowWindow(hwnd, SW_RESTORE);
+      SetForegroundWindow(hwnd);
+      BringWindowToTop(hwnd);
+    }
+    return true;
   }
-  return hwnd;
+
+  // We own the mutex now - don't close it, let it live for the app's lifetime
+  return false;
 }
