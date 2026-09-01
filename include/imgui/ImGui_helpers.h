@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <misc/cpp/imgui_stdlib.h>
 #include <string>
 #include <vector>
 #include <filesystem>
@@ -50,6 +51,7 @@ inline bool IsCurrentWindowHovered() {
 }
 
 inline void Filewalker (std::string& path, std::vector<std::string>& files) {
+  static std::string search = "";
   namespace fs = std::filesystem;
   if (path.empty())
     return;
@@ -64,8 +66,13 @@ inline void Filewalker (std::string& path, std::vector<std::string>& files) {
   }
   ImGui::SameLine();
   ImGui::Text("%s", p.filename().string().c_str());
+  ImGui::InputTextWithHint("## Suchen", "suchen", &search);
   if (ImGui::BeginListBox ("##files")) {
     for (const auto& file : files) {
+      if(!search.empty()){
+        if(!file.contains(search))
+          continue;
+      }
       fs::path filepath(file);
       if (ImGui::Selectable (filepath.filename ().string ().c_str ())) {
         if (fs::is_directory (filepath)) {
