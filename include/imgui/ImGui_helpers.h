@@ -70,7 +70,11 @@ inline void Filewalker (std::string& path, std::vector<std::string>& files) {
   if (ImGui::BeginListBox ("##files")) {
     for (const auto& file : files) {
       if(!search.empty()){
-        if(!file.contains(search))
+        std::string lower_file = file;
+        std::string lower_search = search;
+        std::transform(lower_file.begin(), lower_file.end(), lower_file.begin(), [](unsigned char c) { return std::tolower(c); });
+        std::transform(lower_search.begin(), lower_search.end(), lower_search.begin(), [](unsigned char c) { return std::tolower(c); });
+        if(!lower_file.contains(lower_search))
           continue;
       }
       fs::path filepath(file);
