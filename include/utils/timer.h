@@ -18,6 +18,10 @@ public:
     m_Running = false;
   }
 
+  bool Running () {
+    return m_Running;
+  }
+
   double GetElapsedMilliseconds() const {
     auto end = m_Running ? std::chrono::high_resolution_clock::now() : m_End;
     return std::chrono::duration<double, std::milli>(end - m_Start).count();
