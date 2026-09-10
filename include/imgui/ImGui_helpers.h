@@ -1,27 +1,27 @@
 #pragma once
 
+#include "utils/filedialog.h"
+#include <cstdarg>
+#include <filesystem>
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <string>
 #include <vector>
-#include <filesystem>
-#include "utils/filedialog.h"
-#include <cstdarg>
 
 namespace ImGui {
-inline void HelpMarker (const char* fmt, ...) {
-	ImGui::TextDisabled("(?)");
-	if (ImGui::IsItemHovered (ImGuiHoveredFlags_DelayShort | ImGuiHoveredFlags_AllowWhenDisabled)) {
-		ImGui::BeginTooltip();
-		va_list args;
-		va_start(args, fmt);
-		ImGui::TextV(fmt, args);
-		va_end(args);
-		ImGui::EndTooltip();
-		}
+inline void HelpMarker(const char *fmt, ...) {
+  ImGui::TextDisabled("(?)");
+  if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort | ImGuiHoveredFlags_AllowWhenDisabled)) {
+    ImGui::BeginTooltip();
+    va_list args;
+    va_start(args, fmt);
+    ImGui::TextV(fmt, args);
+    va_end(args);
+    ImGui::EndTooltip();
+  }
 }
 
-inline void HelpMarkerColored (bool hightlight, const char* fmt, ...) {
+inline void HelpMarkerColored(bool hightlight, const char *fmt, ...) {
   ImVec4 color = hightlight
                      ? ImVec4(1.0f, 0.2f, 0.2f, 1.0f) // red
                      : ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled);
@@ -29,14 +29,14 @@ inline void HelpMarkerColored (bool hightlight, const char* fmt, ...) {
   ImGui::TextUnformatted("(?)");
   ImGui::PopStyleColor();
 
-	if (ImGui::IsItemHovered (ImGuiHoveredFlags_DelayShort | ImGuiHoveredFlags_AllowWhenDisabled)) {
+  if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort | ImGuiHoveredFlags_AllowWhenDisabled)) {
     ImGui::BeginTooltip();
     va_list args;
     va_start(args, fmt);
     ImGui::TextV(fmt, args);
     va_end(args);
     ImGui::EndTooltip();
-	}
+  }
 }
 
 inline bool IsCurrentWindowHovered() {
@@ -49,34 +49,33 @@ inline bool IsCurrentWindowHovered() {
   return ImGui::IsMouseHoveringRect(min, max);
 }
 
-inline void Filewalker (std::string& path, std::vector<std::string>& files) {
+inline void Filewalker(std::string &path, std::vector<std::string> &files) {
   namespace fs = std::filesystem;
   if (path.empty())
     return;
   fs::path p(path);
-  if (ImGui::ArrowButton ("Back", ImGuiDir_Left) && p.has_parent_path()) {
+  if (ImGui::ArrowButton("Back", ImGuiDir_Left) && p.has_parent_path()) {
     path = p.parent_path().string();
     p = fs::path(path);
     files.clear();
-    for (const auto& entry : fs::directory_iterator (p)) {
+    for (const auto &entry : fs::directory_iterator(p)) {
       files.push_back(entry.path().string());
     }
   }
   ImGui::SameLine();
   ImGui::Text("%s", p.filename().string().c_str());
-  if (ImGui::BeginListBox ("##files")) {
-    for (const auto& file : files) {
+  if (ImGui::BeginListBox("##files")) {
+    for (const auto &file : files) {
       fs::path filepath(file);
-      if (ImGui::Selectable (filepath.filename ().string ().c_str ())) {
-        if (fs::is_directory (filepath)) {
+      if (ImGui::Selectable(filepath.filename().string().c_str())) {
+        if (fs::is_directory(filepath)) {
           path = file;
           files.clear();
-          for (const auto& entry : fs::directory_iterator (filepath)) {
+          for (const auto &entry : fs::directory_iterator(filepath)) {
             files.push_back(entry.path().string());
           }
           break;
-        }
-        else
+        } else
           OpenPath(file);
       }
       ImGui::SetItemTooltip("%s", file.c_str());
@@ -95,8 +94,16 @@ inline void Filewalker (std::string& path, std::vector<std::string>& files) {
 #define IMGUI_DATEPICKER_YEAR_MAX 3000
 #endif // !IMGUI_DATEPICKER_YEAR_MAX
 
-IMGUI_API bool DatePickerEx(const std::string &label, tm &v, ImFont *altFont, const std::string &prev, bool clampToBorder = false, float itemSpacing = 130.0f, float width = 170.0f);
+/// Date field with a calendar popup.
+///
+/// `date` is read and written in `format` (strftime/get_time syntax). The default
+/// is the German notation; pass "%Y-%m-%d" for the ISO form an API speaks.
+///
+/// Sizes follow the current style: pass `width = 0.0f` to have the field measured
+/// against the formatted date rather than a fixed pixel count, which is what keeps
+/// it in proportion when the theme or the font changes. `itemSpacing = 0.0f` puts
+/// the field directly after the label.
+IMGUI_API bool DatePickerEx(const std::string &label, std::string &date, ImFont *altFont, bool clampToBorder = false, float itemSpacing = 0.0f, float width = 0.0f, const char *format = "%Y.%m.%d");
 
-IMGUI_API bool DatePicker(const std::string &label, tm &v, const std::string &prev, bool clampToBorder = false, float itemSpacing = 0.0f, float width = 170.0f);
-}
-
+IMGUI_API bool DatePicker(const std::string &label, std::string &date, bool clampToBorder = false, float itemSpacing = 0.0f, float width = 0.0f, const char *format = "%Y.%m.%d");
+} // namespace ImGui
