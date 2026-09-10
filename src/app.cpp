@@ -86,6 +86,7 @@ public:
   std::thread instancepipeline;
   std::string name = "App";
   std::string workingdir = "App/";
+  std::string information = "";
 
   // Draw handles
   bool drawing = false;
@@ -314,6 +315,16 @@ void app::DrawStartup (const std::string& filepath) {
   ::EndDrawing();
   app.drawing = false;
   UnloadTexture(t);
+}
+
+void app::AddProgrammInformation(const std::string &info) {
+  auto &app = App::Get();
+  auto &wc = WindowControl::Get();
+  app.information = info;
+  wc.RegisterMenu("(?)", []() {
+    static auto &app = App::Get();
+    ImGui::Text("%s", app.information.c_str());
+  });
 }
 
 bool app::SetSingleInstance(bool single, const std::string& name) {

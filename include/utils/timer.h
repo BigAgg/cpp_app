@@ -18,7 +18,7 @@ public:
     m_Running = false;
   }
 
-  bool Running () {
+  bool Running() const {
     return m_Running;
   }
 
