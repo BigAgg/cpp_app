@@ -103,7 +103,7 @@ inline void Filewalker(std::string &path, std::vector<std::string> &files) {
 /// against the formatted date rather than a fixed pixel count, which is what keeps
 /// it in proportion when the theme or the font changes. `itemSpacing = 0.0f` puts
 /// the field directly after the label.
-IMGUI_API bool DatePickerEx(const std::string &label, std::string &date, ImFont *altFont, bool clampToBorder = false, float itemSpacing = 0.0f, float width = 0.0f, const char *format = "%Y.%m.%d");
+IMGUI_API bool DatePickerEx(const std::string &label, std::string &date, ImFont *altFont, bool clampToBorder = false, float itemSpacing = 0.0f, float width = 0.0f, const char *format = "%>.%m.%Y");
 
-IMGUI_API bool DatePicker(const std::string &label, std::string &date, bool clampToBorder = false, float itemSpacing = 0.0f, float width = 0.0f, const char *format = "%Y.%m.%d");
+IMGUI_API bool DatePicker(const std::string &label, std::string &date, bool clampToBorder = false, float itemSpacing = 0.0f, float width = 0.0f, const char *format = "%d.%m.%Y");
 } // namespace ImGui
