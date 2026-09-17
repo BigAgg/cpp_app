@@ -140,6 +140,13 @@ void updater::Init (const std::string& updaterPath, const std::string& installer
   unsigned int version_alpha = std::stoi(split_at(split_at(version, ".").second, ".").second);
   std::string version_file = ui.versioninfo;
   ui.versionavail = version_file;
+  if (ui.versionavail.contains ("-")) {
+    auto [version, info] = split_at(ui.versionavail, "-");
+    version_file = version;
+    if (info == "silent") {
+      ui.silentupdate = true;
+    }
+  }
   unsigned int version_avail_major = std::stoi(split_at(version_file, ".").first);
   unsigned int version_avail_minor = std::stoi(split_at(split_at(version_file, ".").second, ".").first);
   unsigned int version_avail_alpha = std::stoi(split_at(split_at(version_file, ".").second, ".").second);
