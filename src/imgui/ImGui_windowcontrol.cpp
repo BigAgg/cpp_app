@@ -188,6 +188,10 @@ void WindowControl::ThemeSelector() {
       SetTheme(PURPLE_LIGHT, mModernTheme);
       mTheme = PURPLE_LIGHT;
     }
+    if (ImGui::Button ("Pink")) {
+      SetTheme(GIRLY_PINK, mModernTheme);
+      mTheme = GIRLY_PINK;
+    }
     if (ImGui::Button("Braun")) {
       SetTheme(NOCTUA_LIGHT, mModernTheme);
       mTheme = NOCTUA_LIGHT;
