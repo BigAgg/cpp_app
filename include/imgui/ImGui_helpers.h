@@ -1,10 +1,12 @@
 #pragma once
 
 #include "utils/filedialog.h"
+#include "utils/stringconverter.h"
 #include <cstdarg>
 #include <filesystem>
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <misc/cpp/imgui_stdlib.h>
 #include <string>
 #include <vector>
 
@@ -53,6 +55,7 @@ inline void Filewalker(std::string &path, std::vector<std::string> &files) {
   namespace fs = std::filesystem;
   if (path.empty())
     return;
+  static std::string search;
   fs::path p(path);
   if (ImGui::ArrowButton("Back", ImGuiDir_Left) && p.has_parent_path()) {
     path = p.parent_path().string();
@@ -64,8 +67,13 @@ inline void Filewalker(std::string &path, std::vector<std::string> &files) {
   }
   ImGui::SameLine();
   ImGui::Text("%s", p.filename().string().c_str());
+  ImGui::InputTextWithHint("##search", "suchen...", &search);
   if (ImGui::BeginListBox("##files")) {
+    const std::string lowersearch = to_lower(search);
     for (const auto &file : files) {
+      const std::string lowerfile = to_lower(file);
+      if (!lowerfile.contains(lowersearch))
+        continue;
       fs::path filepath(file);
       if (ImGui::Selectable(filepath.filename().string().c_str())) {
         if (fs::is_directory(filepath)) {
