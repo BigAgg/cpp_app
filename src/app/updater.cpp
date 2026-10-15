@@ -291,6 +291,8 @@ void updater::InitGit(const std::string &repo, const std::string& filename, cons
   ui.versionavail = info.version;
   ui.updateinfo = info.body;
   ui.versioncurrent = currentVersion;
+  if (info.version.empty())
+    return;
   ui.installerpath = fs::current_path().string() + "\\" + filename;
   if (ui.versionavail.contains("-")) {
     const auto &[version, trigger] = split_at(ui.versionavail, "-");
