@@ -94,12 +94,13 @@ inline void Filewalker(std::string &path, std::vector<std::string> &files) {
     OpenPath(path);
 }
 
-inline void InputTextSearch (const char* name, const char* hint, std::string* str, const std::vector<std::string>& elements) {
+inline bool InputTextSearch (const char* name, const char* hint, std::string* str, const std::vector<std::string>& elements) {
   static int selectedIndex = -1;
+  std::string original = *str;
   std::vector<std::string> filtered;
   ImGui::InputTextWithHint(name, hint, str);
   if (!ImGui::IsItemActive())
-    return;
+    return false;
   filtered.clear();
 
   if (!str->empty ()) {
@@ -133,6 +134,7 @@ inline void InputTextSearch (const char* name, const char* hint, std::string* st
 
   if (ImGui::IsKeyPressed(ImGuiKey_Enter) && selectedIndex >= 0 && selectedIndex < filtered.size())
     *str = filtered[selectedIndex];
+  return original != *str;
 }
 
 #ifndef IMGUI_DATEPICKER_YEAR_MIN
