@@ -9,6 +9,7 @@
 #include <misc/cpp/imgui_stdlib.h>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 namespace ImGui {
 inline void HelpMarker(const char *fmt, ...) {
@@ -94,46 +95,132 @@ inline void Filewalker(std::string &path, std::vector<std::string> &files) {
     OpenPath(path);
 }
 
-inline bool InputTextSearch (const char* name, const char* hint, std::string* str, const std::vector<std::string>& elements) {
-  static int selectedIndex = -1;
-  std::string original = *str;
-  std::vector<std::string> filtered;
-  ImGui::InputTextWithHint(name, hint, str);
-  if (!ImGui::IsItemActive())
-    return false;
-  filtered.clear();
+inline bool InputTextSearch(
+    const char *name,
+    const char *hint,
+    std::string *str,
+    const std::vector<std::string> &elements) {
+  struct SearchState {
+    int selectedIndex = -1;
+    bool popupOpen = false;
+  };
 
-  if (!str->empty ()) {
+  static std::unordered_map<ImGuiID, SearchState> states;
+
+  ImGuiID id = ImGui::GetID(name);
+  auto &state = states[id];
+
+  std::string original = *str;
+
+  ImGui::InputTextWithHint(name, hint, str);
+
+  const bool inputActive = ImGui::IsItemActive();
+  const bool inputFocused = ImGui::IsItemFocused();
+
+  const float width = ImGui::GetItemRectSize().x;
+
+  std::vector<std::string> filtered;
+
+  if (!str->empty()) {
     std::string search = to_lower(*str);
-    for (const auto& item : elements) {
-      std::string i_lower = to_lower(item);
-      if (i_lower.find(search) != std::string::npos)
+
+    for (const auto &item : elements) {
+      if (to_lower(item).contains(search))
         filtered.push_back(item);
     }
+  }
 
-    if (!filtered.empty ()) {
-      ImGui::SetNextWindowBgAlpha(1.0f);
-      if (ImGui::BeginChild ("##autocomplete",
-                             ImVec2 (ImGui::GetItemRectSize ().x, 150), true)) {
-        for (int i = 0; i < (int)filtered.size (); i++) {
-          bool selected = (selectedIndex == i);
+  if (inputActive || inputFocused)
+    state.popupOpen = true;
 
-          if (ImGui::Selectable (filtered[i].c_str (), selected)) {
-            *str = filtered[i];
-            filtered.clear();
-          }
+  if (filtered.empty()) {
+    state.popupOpen = false;
+    state.selectedIndex = -1;
+  }
+
+  bool popupHovered = false;
+  bool selectionMade = false;
+
+  if (state.popupOpen && !filtered.empty()) {
+    const float itemHeight =
+        ImGui::GetTextLineHeightWithSpacing();
+
+    const float padding =
+        ImGui::GetStyle().WindowPadding.y * 2.0f;
+
+    const float maxVisibleItems = 8.0f;
+
+    const float height =
+        std::min(
+            (float)filtered.size(),
+            maxVisibleItems) *
+            itemHeight +
+        padding;
+
+    std::string childId =
+        std::string("##autocomplete_") + name;
+
+    if (ImGui::BeginChild(
+            childId.c_str(),
+            ImVec2(width, height),
+            true)) {
+      popupHovered = ImGui::IsWindowHovered(
+          ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
+
+      for (int i = 0; i < (int)filtered.size(); ++i) {
+        bool selected =
+            state.selectedIndex == i;
+
+        if (selected)
+          ImGui::SetScrollHereY();
+
+        if (ImGui::Selectable(
+                filtered[i].c_str(),
+                selected)) {
+          *str = filtered[i];
+          state.selectedIndex = -1;
+          selectionMade = true;
         }
       }
-      ImGui::EndChild();
+    }
+
+    ImGui::EndChild();
+
+    if (ImGui::IsKeyPressed(ImGuiKey_DownArrow)) {
+      state.selectedIndex = std::min(
+          state.selectedIndex + 1,
+          (int)filtered.size() - 1);
+    }
+
+    if (ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
+      state.selectedIndex = std::max(
+          state.selectedIndex - 1,
+          0);
+    }
+
+    if (ImGui::IsKeyPressed(ImGuiKey_Enter) &&
+        state.selectedIndex >= 0 &&
+        state.selectedIndex < (int)filtered.size()) {
+      *str = filtered[state.selectedIndex];
+      selectionMade = true;
+      state.selectedIndex = -1;
     }
   }
-  if (ImGui::IsKeyPressed(ImGuiKey_DownArrow))
-    selectedIndex = std::min(selectedIndex + 1, (int)filtered.size() - 1);
-  if (ImGui::IsKeyPressed(ImGuiKey_UpArrow))
-    selectedIndex = std::max(selectedIndex - 1, 0);
 
-  if (ImGui::IsKeyPressed(ImGuiKey_Enter) && selectedIndex >= 0 && selectedIndex < filtered.size())
-    *str = filtered[selectedIndex];
+  if (selectionMade) {
+    state.popupOpen = false;
+    ImGui::SetKeyboardFocusHere(-1);
+    return true;
+  }
+
+  if (!inputActive &&
+      !inputFocused &&
+      !popupHovered &&
+      ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+    state.popupOpen = false;
+    state.selectedIndex = -1;
+  }
+
   return original != *str;
 }
 

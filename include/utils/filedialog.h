@@ -3,11 +3,13 @@
 #include <string>
 #include <vector>
 #include <chrono>
+#include <filesystem>
 
 std::string OpenFileDialog(const std::vector<std::string>& filters = {"*"}, std::string delimiter=":");
 std::string SaveFileDialog(const std::vector<std::string>& filters = {"*"}, std::string delimiter=":");
 std::string OpenDirectoryDialog();
 void OpenPath(const std::string& path);
+void OpenPath(const std::filesystem::path &path);
 long long GetLastWriteTimeInt(const std::string &path);
 std::string GetLastWriteTime(const std::string &path);
 bool WaitForWritableFile(const std::string &path,

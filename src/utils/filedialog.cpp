@@ -116,6 +116,11 @@ void OpenPath(const std::string& path) {
   ShellExecute(NULL, "open", path.c_str(), NULL, NULL, SW_SHOWDEFAULT);
 }
 
+void OpenPath(const std::filesystem::path &path) {
+  std::filesystem::path u8path = std::filesystem::u8path(path.string());
+  ShellExecute(NULL, "open", u8path.string().c_str(), NULL, NULL, SW_SHOWDEFAULT);
+}
+
 long long GetLastWriteTimeInt (const std::string& path) {
   using namespace std::chrono;
   auto ftime = std::filesystem::last_write_time(path);
