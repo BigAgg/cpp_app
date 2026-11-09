@@ -94,6 +94,47 @@ inline void Filewalker(std::string &path, std::vector<std::string> &files) {
     OpenPath(path);
 }
 
+inline void InputTextSearch (const char* name, const char* hint, std::string* str, const std::vector<std::string>& elements) {
+  static int selectedIndex = -1;
+  std::vector<std::string> filtered;
+  ImGui::InputTextWithHint(name, hint, str);
+  if (!ImGui::IsItemActive())
+    return;
+  filtered.clear();
+
+  if (!str->empty ()) {
+    std::string search = to_lower(*str);
+    for (const auto& item : elements) {
+      std::string i_lower = to_lower(item);
+      if (i_lower.find(search) != std::string::npos)
+        filtered.push_back(item);
+    }
+
+    if (!filtered.empty ()) {
+      ImGui::SetNextWindowBgAlpha(1.0f);
+      if (ImGui::BeginChild ("##autocomplete",
+                             ImVec2 (ImGui::GetItemRectSize ().x, 150), true)) {
+        for (int i = 0; i < (int)filtered.size (); i++) {
+          bool selected = (selectedIndex == i);
+
+          if (ImGui::Selectable (filtered[i].c_str (), selected)) {
+            *str = filtered[i];
+            filtered.clear();
+          }
+        }
+      }
+      ImGui::EndChild();
+    }
+  }
+  if (ImGui::IsKeyPressed(ImGuiKey_DownArrow))
+    selectedIndex = std::min(selectedIndex + 1, (int)filtered.size() - 1);
+  if (ImGui::IsKeyPressed(ImGuiKey_UpArrow))
+    selectedIndex = std::max(selectedIndex - 1, 0);
+
+  if (ImGui::IsKeyPressed(ImGuiKey_Enter) && selectedIndex >= 0 && selectedIndex < filtered.size())
+    *str = filtered[selectedIndex];
+}
+
 #ifndef IMGUI_DATEPICKER_YEAR_MIN
 #define IMGUI_DATEPICKER_YEAR_MIN 1900
 #endif // !IMGUI_DATEPICKER_YEAR_MIN
