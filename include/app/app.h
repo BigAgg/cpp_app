@@ -12,6 +12,7 @@ void SetFont(const std::string &filepath);
 void DrawStartup(const std::string& filepath);
 void AddProgrammInformation(const std::string &info);
 bool SetSingleInstance(bool single, const std::string &name);
+void AddRaylibDraw(void (*func)());
 
 bool HasDropfiles();
 std::vector<std::string> GetDropfiles(const std::string &endswith = "");

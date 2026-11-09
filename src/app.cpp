@@ -87,6 +87,7 @@ public:
   std::string name = "App";
   std::string workingdir = "App/";
   std::string information = "";
+  std::vector<void (*)()> customDraws;
 
   // Draw handles
   bool drawing = false;
@@ -274,6 +275,9 @@ void app::EndDrawing () {
     return;
   app.drawing = false;
   rlImGuiEnd();
+  for (auto& func : app.customDraws) {
+    func();
+  }
   ::EndDrawing();
   auto &em = EventRegistry::Get();
   em.TriggerEvents();
@@ -334,6 +338,13 @@ bool app::SetSingleInstance(bool single, const std::string& name) {
     return true;
   }
   return false;
+}
+
+void app::AddRaylibDraw(void (*func)()) {
+  if (!func)
+    return;
+  auto &app = App::Get();
+  app.customDraws.push_back(func);
 }
 
 bool app::HasDropfiles () {
